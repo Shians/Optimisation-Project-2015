@@ -1,0 +1,6 @@
+budget: 500
+
+days: 2
+
+criteriaRating: [10, 0, 0, 0, 0, 0, 0, 0, ]
+
