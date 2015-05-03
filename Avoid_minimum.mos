@@ -1,0 +1,114 @@
+model ModelName
+uses "mmxprs";
+
+declarations
+    numCities = 15
+    numDays = 10
+
+    CITIES = 1..numCities
+    DAYS = 1..numDays
+
+    location : array(CITIES, DAYS) of mpvar
+    city : array(CITIES) of mpvar
+    move : array(CITIES, CITIES, DAYS) of mpvar
+    
+    together : array(CITIES, DAYS) of mpvar
+    partnerLoc : array(CITIES, DAYS) of mpvar
+    
+    partner : array(DAYS) of integer
+    budget : integer
+
+    names: array(CITIES) of string  
+    travel : array(CITIES, CITIES) of integer
+    daily : array(CITIES) of integer
+
+    minDays : integer
+    maxDays : integer
+
+    totalCost : integer
+end-declarations
+
+partner :: [7, 7, 7, 7, 7, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3]
+budget := 500
+
+names :: (1..15)["Moscow","Paris","London","Madrid","Rome","Crete","Barcelona","Berlin","Budapest","Florence","Amsterdam","Prague","Istanbul","Vienna","Venice"]
+
+travel :: [0,146,126,202,146,168,143,156,207,291,154,146,115,131,129,
+           227,0,60,143,93,123,139,110,162,85,52,165,150,140,68,
+           213,82,0,249,160,284,135,107,163,224,124,171,197,179,152,
+           188,86,136,0,144,188,69,70,96,138,103,124,180,143,119,
+           223,80,125,146,0,177,39,96,69,84,94,94,74,105,71,
+           233,81,223,188,58,0,131,123,58,241,200,114,120,164,169,
+           200,121,79,76,32,165,0,143,108,103,90,110,141,103,74,
+           130,53,81,97,83,153,110,0,83,214,92,123,99,176,104,
+           249,133,125,96,41,123,96,76,0,164,157,113,50,149,97,
+           309,246,162,172,86,301,90,186,204,0,227,155,279,229,150,
+           155,158,73,141,136,211,117,106,125,229,0,85,121,155,95,
+           112,122,100,112,48,193,116,108,138,144,97,0,85,152,65,
+           123,101,127,154,67,173,122,86,41,235,66,108,0,59,65,
+           145,162,122,202,90,75,145,117,175,171,90,181,121,0,194,
+           167,65,17,117,84,191,97,119,110,152,75,96,177,152,0]
+
+daily :: [10, 10, 20, 30, 5, 10, 15, 20, 35, 5, 10, 15, 25, 5, 5]
+
+minDays := 3
+maxDays := 8
+
+forall(d in DAYS) do
+	sum (c in CITIES) c * partnerLoc(c, d) = partner(d)
+end-do
+
+forall(c in CITIES, d in DAYS) do
+	location(c, d) + partnerLoc(c, d) >= 1 + together(c, d)
+end-do
+
+forall(c in CITIES) do
+    sum (d in DAYS) location(c, d) >= minDays * city(c)
+    sum (d in DAYS) location(c, d) <= maxDays * city(c)
+end-do
+
+forall(d in 1..(numDays-1), f in CITIES, t in CITIES) do
+    location(f, d) + location(t, d+1) <= 1 + move(f, t, d)
+end-do
+
+forall(d in DAYS) do
+    sum (c in CITIES) location(c, d) = 1
+    sum (c in CITIES) partnerLoc(c, d) = 1
+    
+    sum (f in CITIES, t in CITIES) move(f, t, d) = 1
+end-do
+
+forall(c in CITIES, d in DAYS) do
+    city(c) is_binary
+    location(c, d) is_binary
+    
+    partnerLoc(c, d) is_binary
+    together(c, d) is_binary
+end-do
+
+forall(f in CITIES, t in CITIES, d in DAYS) do
+    move(f, t, d) is_binary
+end-do
+
+totalCost = sum(c in CITIES, d in DAYS) location(c, d) * daily(c) +
+             sum(f in CITIES, t in CITIES, d in DAYS) move(f, t, d) * travel(f, t)
+
+totalCost <= budget
+
+minimise(sum(c in CITIES, d in DAYS) together(c, d))
+
+writeln("Begin running model")
+
+writeln("Together: ", sum(c in CITIES, d in DAYS) together.sol, " days")
+
+writeln("Total Cost: ", totalCost.sol)
+
+forall(d in DAYS, c in CITIES) do
+    if (location(c, d).sol > 0) then
+        writeln("Day ", d, " in City ", names(c))
+    end-if
+end-do
+
+writeln("End running model")
+
+end-model
