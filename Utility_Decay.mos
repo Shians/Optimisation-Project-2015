@@ -1,0 +1,100 @@
+model ModelName
+uses "mmxprs";
+
+declarations
+	numCities = 5
+    numDays = 10
+    
+	CITIES = 1..numCities
+    DAYS = 1..numDays
+	
+	location : array(CITIES, DAYS) of mpvar
+	city : array(CITIES) of mpvar
+	move : array(CITIES, CITIES, DAYS) of mpvar
+	daysStay : array(CITIES, DAYS) of mpvar
+	
+	names: array(CITIES) of string 
+	travel : array(CITIES, CITIES) of integer
+	daily : array(CITIES) of integer
+	
+	utility: array(CITIES, DAYS) of real
+	
+ 	minDays : integer
+ 	maxDays : integer
+ 	
+ 	cityDays: array(CITIES) of linctr
+ 	totalUtility: linctr
+ 	totalCost : linctr
+end-declarations
+
+names:: (1..5)["Moscow","Paris","London","Madrid","Rome"]
+
+utility :: [1.209,2.298,3.277,4.159,4.953,5.667,6.309,6.888,7.408,7.877,
+			4.483,8.518,12.149,15.418,18.359,21.006,23.389,25.533,27.463,29.2,
+			4.878,9.269,13.22,16.776,19.977,22.857,25.45,27.783,29.883,31.773,
+			2.529,4.804,6.853,8.696,10.355,11.848,13.192,14.401,15.49,16.469,
+			158,11.621,13.838,15.834,17.629,19.246,20.7,22.009]
+
+travel :: [0, 146, 126, 202, 146,
+		   227, 0, 60, 143, 93,
+		   213, 82, 0, 249, 160,
+		   188, 86, 136, 0, 144,
+		   223, 80, 125, 146, 0]
+
+daily :: [10, 10, 20, 30, 5]
+
+minDays := 3
+maxDays := 6
+
+
+forall(c in CITIES) do
+    sum (d in DAYS) location(c, d) >= minDays * city(c)
+    sum (d in DAYS) location(c, d) <= maxDays * city(c)
+    sum (d in DAYS) daysStay(c, d) <= 1
+end-do
+
+forall(d in 1..(numDays-1), f in CITIES, t in CITIES) do
+    location(f, d) + location(t, d+1) <= 1 + move(f, t, d)
+end-do
+
+forall(d in DAYS) do
+    sum (c in CITIES) location(c, d) = 1
+    sum (f in CITIES, t in CITIES) move(f, t, d) = 1
+end-do
+
+forall(c in CITIES, d in DAYS) do
+    city(c) is_binary
+    location(c, d) is_binary
+    daysStay(c, d) is_binary
+end-do
+
+forall(f in CITIES, t in CITIES, d in DAYS) do
+    move(f, t, d) is_binary
+end-do
+
+forall(c in CITIES, d in DAYS) do
+	daysStay(c, d) * d <= sum(d2 in DAYS) location(c, d2)
+end-do
+
+totalCost := sum(c in CITIES, d in DAYS) location(c, d) * daily(c) +
+             sum(f in CITIES, t in CITIES, d in DAYS) move(f, t, d) * travel(f, t)
+
+totalUtility := sum(c in CITIES, d in DAYS) daysStay(c, d) * utility(c, d)
+
+maximise(totalUtility)
+
+writeln("Begin running model")
+
+writeln("Total Cost: $", totalCost.sol)
+
+forall(d in DAYS, c in CITIES) do
+    if (location(c, d).sol > 0) then
+        writeln("Day ", d, " in City ", names(c))
+    end-if
+end-do
+
+writeln("Total utility is ", totalUtility.sol)
+
+writeln("End running model")
+
+end-model
