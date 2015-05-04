@@ -92,7 +92,7 @@ forall(p in PEOPLE) do
 	totalCost(p) <= budget(p)
 end-do
 
-maximise(totalCost(1))
+minimise(totalCost(1))
 
 writeln("Begin running model for Person 1")
 
@@ -111,12 +111,12 @@ forall(c in CITIES, d in DAYS) do
 end-do
 
 forall(c in CITIES, d in DAYS) do
-	location(c, d, 2) + partner(c, d) >= 2*together(c, d)
+	location(c, d, 2) + partner(c, d) <= 1 + together(c, d)
 end-do
 
 daysTogether := sum(c in CITIES, d in DAYS) together(c, d)
 
-maximise(daysTogether)
+minimise(daysTogether)
 
 sum(c in CITIES, d in DAYS) together(c, d) = daysTogether.sol
 
