@@ -1,0 +1,52 @@
+!This file gives a rating for each city based on the following categories (in order): 
+! Beaches, History (significant events), Art galleries/museums, architecture, nightlife, food, sport, theatre/entertainment
+
+numCriteria: 8
+criteria: ["Beaches", "History", "Art Galleries/Museums", "Architecture", "Nightlife", "Food", "Sport", "Theatre/Entertainment"]
+
+Moscow:	[0, 2, 4, 8, 5, 6, 5, 9]
+
+Paris:	[0, 7, 8, 7, 6, 8, 7, 8] 
+
+London:	[1, 7, 7, 8, 9, 3, 8, 10]
+
+Madrid:	[0, 6, 7, 5, 6, 7, 9, 6]
+
+Rome:	[0, 10, 8, 6, 4, 10, 7, 7]
+
+Crete:	[10, 9, 2, 5, 2, 6, 2, 1]
+
+Barcelona: [8, 5, 7, 10, 9, 8, 8, 5]
+
+Berlin:	   [0, 10, 7, 5, 9, 5, 7, 4]
+
+Budapest:  [0, 5, 7, 8, 8, 5, 4, 5]
+
+Florence:  [2, 8, 10, 7, 3, 10, 2, 5]
+
+Amsterdam: [0, 5, 7, 7, 9, 4, 6, 6]
+	
+Prague:	   [0, 4, 6, 6, 7, 5, 5, 4]
+
+Istanbul:  [0, 5, 7, 6, 4, 5, 4, 4]
+
+Vienna:	[0, 8, 6, 8, 3, 5, 4, 6]
+
+Venice:	[7, 6, 3, 8, 3, 8, 2, 1]
+
+cityRating: 	[0, 2, 4, 8, 5, 6, 5, 9,
+		 0, 7, 8, 7, 6, 8, 7, 8,
+		 1, 7, 7, 8, 9, 3, 8, 10,
+		 0, 6, 7, 5, 6, 7, 9, 6,
+		 0, 10, 8, 6, 4, 10, 7, 7]
+
+		 10, 9, 2, 5, 2, 6, 2, 1,
+		 8, 5, 7, 10, 9, 8, 8, 5,
+		 0, 10, 7, 9, 5, 7, 4,
+		 0, 5, 7, 8, 8, 5, 4, 5,
+		 2, 8, 10, 7, 3, 10, 2, 5,
+		 0, 5, 7, 7, 9, 4, 6, 6,
+		 0, 4, 6, 6, 7, 5, 5, 4,
+		 0, 5, 7, 6, 4, 5, 4, 4,
+		 0, 8, 6, 8, 3, 5, 4, 3,
+		 7, 6, 3, 8, 3, 8, 2, 1]
