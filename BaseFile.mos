@@ -2,18 +2,19 @@ model ModelName
 uses "mmxprs";
 
 declarations
-    numCities = 15
-    numDays = 10
+    numCities = 25
+    numDays = 20
 
     CITIES = 1..numCities
     DAYS = 1..numDays
-
+	WEEKDAYS = 1..7
 
     location : array(CITIES, DAYS) of mpvar
     city : array(CITIES) of mpvar
     move : array(CITIES, CITIES, DAYS) of mpvar
 
     names: array(CITIES) of string  
+    dayNames: array(WEEKDAYS) of string
     travel : array(CITIES, CITIES) of integer
     daily : array(CITIES) of integer
 
@@ -23,28 +24,17 @@ declarations
     totalCost : linctr
 end-declarations
 
-names:: (1..15)["Moscow","Paris","London","Madrid","Rome","Crete","Barcelona","Berlin","Budapest","Florence","Amsterdam","Prague","Istanbul","Vienna","Venice"]
+names:: (1..numCities)["Moscow","Paris","London","Madrid","Rome","Crete","Barcelona","Berlin","Budapest","Florence","Amsterdam","Prague","Istanbul","Vienna","Venice","Goreme","Lisbon","Nice","Reykjavik","Edinburgh","Dublin","Krakow","Copenhagen","Athens","Munich"]
+dayNames :: (1..7)["Sat","Sun","Mon","Tue","Wed","Thu","Fri"]
 
-travel :: [0,146,126,202,146,168,143,156,207,291,154,146,115,131,129,
-           227,0,60,143,93,123,139,110,162,85,52,165,150,140,68,
-           213,82,0,249,160,284,135,107,163,224,124,171,197,179,152,
-           188,86,136,0,144,188,69,70,96,138,103,124,180,143,119,
-           223,80,125,146,0,177,39,96,69,84,94,94,74,105,71,
-           233,81,223,188,58,0,131,123,58,241,200,114,120,164,169,
-           200,121,79,76,32,165,0,143,108,103,90,110,141,103,74,
-           130,53,81,97,83,153,110,0,83,214,92,123,99,176,104,
-           249,133,125,96,41,123,96,76,0,164,157,113,50,149,97,
-           309,246,162,172,86,301,90,186,204,0,227,155,279,229,150,
-           155,158,73,141,136,211,117,106,125,229,0,85,121,155,95,
-           112,122,100,112,48,193,116,108,138,144,97,0,85,152,65,
-           123,101,127,154,67,173,122,86,41,235,66,108,0,59,65,
-           145,162,122,202,90,75,145,117,175,171,90,181,121,0,194,
-           167,65,17,117,84,191,97,119,110,152,75,96,177,152,0]
+initialisations from "AirfareData25.txt"
+ 	travel as "travel"
+end-initialisations
 
-daily :: [10, 10, 20, 30, 5, 10, 15, 20, 35, 5, 10, 15, 25, 5, 5]
+daily :: [10, 10, 20, 30, 5, 10, 15, 20, 35, 5, 10, 15, 25, 5, 5, 10, 15, 0, 20, 15, 5, 30, 25, 20, 15]
 
-minDays := 3
-maxDays := 8
+minDays := 2
+maxDays := 3
 
 forall(c in CITIES) do
     sum (d in DAYS) location(c, d) >= minDays * city(c)
@@ -80,7 +70,7 @@ writeln("Total Cost: $", totalCost.sol)
 
 forall(d in DAYS, c in CITIES) do
     if (location(c, d).sol > 0) then
-        writeln("Day ", d, " in City ", names(c))
+        writeln("Day ", d, "(", dayNames(1+d mod 7) ,") in ", names(c))
     end-if
 end-do
 
