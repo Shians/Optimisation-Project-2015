@@ -1,5 +1,6 @@
 model ModelName
 uses "mmxprs";
+setparam("REALFMT", "%.3f")
 
 declarations
 	numCities = 5
@@ -17,6 +18,7 @@ declarations
 	travel : array(CITIES, CITIES) of integer
 	daily : array(CITIES) of integer
 	
+	baseUtility: array(CITIES) of real
 	utility: array(CITIES, DAYS) of real
 	
  	minDays : integer
@@ -27,13 +29,22 @@ declarations
  	totalCost : linctr
 end-declarations
 
+function findUtility(city:integer, day:integer):real
+	!returned := baseUtility(city) * (-0.2*day^2 + 0.8 * day + 0.4) !Alternative utility function
+	returned := baseUtility(city) * 0.9^day
+end-function
+
 names:: (1..5)["Moscow","Paris","London","Madrid","Rome"]
 
-utility :: [1.209,2.298,3.277,4.159,4.953,5.667,6.309,6.888,7.408,7.877,
-			4.483,8.518,12.149,15.418,18.359,21.006,23.389,25.533,27.463,29.2,
-			4.878,9.269,13.22,16.776,19.977,22.857,25.45,27.783,29.883,31.773,
-			2.529,4.804,6.853,8.696,10.355,11.848,13.192,14.401,15.49,16.469,
-			158,11.621,13.838,15.834,17.629,19.246,20.7,22.009]
+baseUtility :: [1.209, 4.483, 4.878, 2.529, 4.2]
+
+forall(c in CITIES) do
+	utility(c,1) := baseUtility(c)
+end-do
+
+forall(c in CITIES, d in 2..numDays) do
+	utility(c,d) := utility(c,d-1) + findUtility(c,d)
+end-do
 
 travel :: [0, 146, 126, 202, 146,
 		   227, 0, 60, 143, 93,
@@ -43,14 +54,8 @@ travel :: [0, 146, 126, 202, 146,
 
 daily :: [10, 10, 20, 30, 5]
 
-minDays := 3
-maxDays := 6
-
-
 forall(c in CITIES) do
-    sum (d in DAYS) location(c, d) >= minDays * city(c)
-    sum (d in DAYS) location(c, d) <= maxDays * city(c)
-    sum (d in DAYS) daysStay(c, d) <= 1
+    sum (d in DAYS) daysStay(c, d) = city(c)
 end-do
 
 forall(d in 1..(numDays-1), f in CITIES, t in CITIES) do
@@ -83,6 +88,10 @@ totalUtility := sum(c in CITIES, d in DAYS) daysStay(c, d) * utility(c, d)
 
 maximise(totalUtility)
 
+totalUtility = totalUtility.sol
+
+minimise(totalCost)
+
 writeln("Begin running model")
 
 writeln("Total Cost: $", totalCost.sol)
@@ -94,7 +103,16 @@ forall(d in DAYS, c in CITIES) do
 end-do
 
 writeln("Total utility is ", totalUtility.sol)
-
+forall(c in CITIES) do
+	write(baseUtility(c),"\t")
+end-do
+writeln
+forall(c in CITIES) do
+	forall(d in DAYS) do
+		write(utility(c,d), "\t")
+	end-do
+	write("\n")
+end-do
 writeln("End running model")
 
 end-model
