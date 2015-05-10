@@ -55,7 +55,7 @@ travel :: [0, 146, 126, 202, 146,
 daily :: [10, 10, 20, 30, 5]
 
 forall(c in CITIES) do
-    sum (d in DAYS) daysStay(c, d) = city(c)
+    sum (d in DAYS) daysStay(c, d) = city(c) ! Only one stay duration is valid for each city, only if city is every visited.
 end-do
 
 forall(d in 1..(numDays-1), f in CITIES, t in CITIES) do
@@ -78,7 +78,7 @@ forall(f in CITIES, t in CITIES, d in DAYS) do
 end-do
 
 forall(c in CITIES, d in DAYS) do
-	daysStay(c, d) * d <= sum(d2 in DAYS) location(c, d2)
+	daysStay(c, d) * d <= sum(d2 in DAYS) location(c, d2) !daysStay(c,d) is one if staying d days in city c
 end-do
 
 totalCost := sum(c in CITIES, d in DAYS) location(c, d) * daily(c) +
@@ -102,17 +102,18 @@ forall(d in DAYS, c in CITIES) do
     end-if
 end-do
 
-writeln("Total utility is ", totalUtility.sol)
-forall(c in CITIES) do
-	write(baseUtility(c),"\t")
-end-do
-writeln
-forall(c in CITIES) do
-	forall(d in DAYS) do
-		write(utility(c,d), "\t")
-	end-do
-	write("\n")
-end-do
+! Commented out code for 
+!writeln("Total utility is ", totalUtility.sol)
+!forall(c in CITIES) do
+!	write(baseUtility(c),"\t")
+!end-do
+!writeln
+!forall(c in CITIES) do
+!	forall(d in DAYS) do
+!		write(utility(c,d), "\t")
+!	end-do
+!	write("\n")
+!end-do
 writeln("End running model")
 
 end-model

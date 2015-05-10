@@ -1,0 +1,85 @@
+\documentclass[a4paper]{article}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{chngcntr}
+
+\counterwithin*{equation}{section}
+\counterwithin*{equation}{subsection}
+
+\addtolength{\oddsidemargin}{-.875in}
+\addtolength{\evensidemargin}{-.875in}
+\addtolength{\textwidth}{1.75in}
+
+\addtolength{\topmargin}{-.875in}
+\addtolength{\textheight}{1.75in}
+
+\begin{document}
+
+\section{Base model}
+
+\textbf{Variables} \\
+$x_{id}$: [binary] equal to 1 if the traveller is in city $i$ on day $d$. \\ 	% location variable
+$y_{i}$: [binary] equal to 1 if the traveller ever visits city $i$. \\		% city variable
+$m_{ijd}$: [binary] equal to 1 if the traveller moves from city $i$ to city $j$ on day $d$. \\	% move variable
+
+\textbf{Parameters}\\
+$D$: the total number of days. \\
+$\mathcal{C}$: the set of cities available for visiting. \\
+$\mu_{ij}$: the cost to move from city $i$ to city $j$. \\
+$\delta_{i}$: the daily cost of city $i$. \\
+$\alpha$: the minimum number of days allowed in a city. \\
+$\omega$: the maximum number of days allowed in a city. \\
+
+\begin{equation*}
+\text{Min } \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{id} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} \mu_{ij} \cdot m_{ijd}\\
+\end{equation*}
+\begin{align}
+\text{s.t.~~~~~~~~} \sum_{d=1}^{D} x_{id} & \geq \alpha \cdot y_{i} & \forall i \in \mathcal{C}\\
+\sum_{d=1}^{D} x_{id} & \leq \omega \cdot y_{i} &  \forall i \in \mathcal{C}\\
+x_{id} + x_{j(d+1)} & \leq 1 + m_{ijd} & \forall i,j \in \mathcal{C}, d = 1..D-1 \\
+\sum_{i \in \mathcal{C}} x_{id} &= 1 & d = 1..D \\
+\sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} m_{ijd} &= 1 & d = 1..D-1 \\
+\sum_{d=1}^{D} \sum_{j \in \mathcal{C}} m_{ijd} &\leq 1 + \sum_{d=1}^{D} m_{iid} & \forall i \in \mathcal{C} \\
+x_{j1} + \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} m_{ijd} &\leq 1 + \sum_{d=1}^{D} m_{jjd} & \forall j \in \mathcal{C}\\
+x_{id}, y_{i}, m_{ijd} & \in \{0,1\} & \forall i, j \in \mathcal{C}, d = 1..D\\
+\end{align}
+
+\newpage
+\section{Decaying Enjoyment}
+Assuming that the enjoyment of staying in a city decays with the number of days stayed. We add the following to the model.\\
+
+\textbf{Variables}\\
+$s_{ij}$: [binary] equal to 1 if traveller stays in city i for j days.\\
+
+\textbf{Parameters} \\
+$u_{ij}$: The total utility of staying in city i for j days.\\
+
+Then we no longer need (1) and (2) since we hope that the traveller naturally leaves the city once the marginal enjoyment is low enough.\\
+
+Then the new model is 
+\begin{equation*}
+\text{Max } \sum_{i \in \mathcal{C}} \sum_{j=1}^{D} s_{ij} * u_{ij}\\
+\end{equation*}
+\begin{align}
+\text{s.t.~~~~~~~~}
+\sum_{j=1}^{D} s_{ij} &= y_{i} & \forall i \in \mathcal{C}\\
+s_{ij} \cdot j &\leq \sum_{d=1}^{D} x_{id} & \forall i \in \mathcal{C}, j=1...D\\
+x_{id} + x_{j(d+1)} & \leq 1 + m_{ijd} & \forall i,j \in \mathcal{C}, d = 1..D-1 \\
+\sum_{i \in \mathcal{C}} x_{id} &= 1 & d = 1..D \\
+\sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} m_{ijd} &= 1 & d = 1..D-1 \\
+\sum_{d=1}^{D} \sum_{j \in \mathcal{C}} m_{ijd} &\leq 1 + \sum_{d=1}^{D} m_{iid} & \forall i \in \mathcal{C} \\
+x_{j1} + \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} m_{ijd} &\leq 1 + \sum_{d=1}^{D} m_{jjd} & \forall j \in \mathcal{C}\\
+x_{id}, y_{i}, m_{ijd} & \in \{0,1\} & \forall i, j \in \mathcal{C}, d = 1..D\\
+\end{align}\\
+With this we find the optimal enjoyment possible for the traveller irrespective of cost, then we optimise again to minimise cost at the optimal enjoyment.
+\begin{equation*}
+\text{Min } \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{id} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} \mu_{ij} \cdot m_{ijd}\\
+\end{equation*}
+\begin{align*}
+\text{s.t.~~~~~~~~} & \\
+\text{(1)-(9) from previous} &\text{ model is statisfied and} \\
+\sum_{i \in \mathcal{C}} \sum_{j=1}^{D} s_{ij} * u_{ij} &= (\sum_{i \in \mathcal{C}} \sum_{j=1}^{D} s_{ij} * u_{ij})_{optimal}
+\end{align*}\\
+
+\end{document}
