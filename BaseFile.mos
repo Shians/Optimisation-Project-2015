@@ -16,7 +16,9 @@ declarations
     names: array(CITIES) of string  
     dayNames: array(WEEKDAYS) of string
     travel : array(CITIES, CITIES) of integer
-    daily : array(CITIES) of integer
+    dailyLow : array(CITIES) of integer
+    dailyMid : array(CITIES) of integer
+    dailyHigh : array(CITIES) of integer
 
     minDays : integer
     maxDays : integer
@@ -31,7 +33,9 @@ initialisations from "AirfareData25.txt"
  	travel as "travel"
 end-initialisations
 
-daily :: [10, 10, 20, 30, 5, 10, 15, 20, 35, 5, 10, 15, 25, 5, 5, 10, 15, 0, 20, 15, 5, 30, 25, 20, 15]
+dailyLow :: [36, 81, 110, 57, 68, 69, 49, 50, 75, 56, 68, 39, 32, 56, 54, 46, 51, 56, 75, 63, 56, 28, 59, 41, 67]
+dailyMid :: [92, 223, 298, 148, 169, 181, 126, 130, 145, 142, 165, 100, 85, 158, 134, 117, 125, 125, 207, 156, 127, 70, 147, 103, 133]
+dailyHigh :: [233, 657, 845, 393, 423, 418, 321, 340, 354, 356, 432, 251, 244, 494, 325, 281, 293, 251, 634, 394, 294, 162, 365, 247, 253]
 
 minDays := 2
 maxDays := 3
@@ -59,7 +63,7 @@ forall(f in CITIES, t in CITIES, d in DAYS) do
     move(f, t, d) is_binary
 end-do
 
-totalCost := sum(c in CITIES, d in DAYS) location(c, d) * daily(c) +
+totalCost := sum(c in CITIES, d in DAYS) location(c, d) * dailyLow(c) +
              sum(f in CITIES, t in CITIES, d in DAYS) move(f, t, d) * travel(f, t)
 
 minimise(totalCost)
