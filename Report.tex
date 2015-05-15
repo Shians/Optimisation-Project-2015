@@ -1,0 +1,520 @@
+%%%%% Latex document containing the paper ``Planning an Optimal Trip to Europe''.
+
+%%%%% Date created:   13 May 2015
+%%%%% Date modified   15 May 2015
+%%%%% Created by:     John Gilbertson, Shian Su, Ria Szeredi and Kenneth Young
+
+
+\documentclass[12pt]{article}
+
+\usepackage{latexsym,amssymb,amsmath,epsfig,amsfonts,graphicx,url,pdflscape,lipsum}
+
+\setlength{\topmargin}{-10pt}
+\setlength{\headsep}{0pt}
+\setlength{\headheight}{0pt}
+\setlength{\textheight}{680pt}
+\setlength{\oddsidemargin}{0pt}
+\setlength{\evensidemargin}{0pt}
+\setlength{\textwidth}{460pt}
+\setlength{\parskip}{.30cm}
+\parskip=10pt
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\clearpage
+\vspace*{3cm}
+\begin{center}
+  {\large \bf Planning an Optimal Trip to Europe}\\[+10pt]
+  John Gilbertson, Shian Su, Ria Szeredi and Kenneth Young\\[+10pt]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  {\large \bf Abstract}\\[+10pt]
+  \parbox{13cm}{\lipsum[3]}
+\\[+20pt]
+\parbox{13cm}{
+Keywords: personalised tourist guide, linear programming, transportation planning, trip generation, decision making}
+\\[+20pt]
+\end{center}
+\vfill
+\clearpage
+
+\tableofcontents
+\pagebreak
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+\label{sec:intro}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{quote} \textit{
+Introduction to the business you have selected. Which activity of the business have you selected to
+improve on? Why?
+} \end{quote}
+
+\lipsum[3]
+
+
+\pagebreak
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Solution Methodology} 
+\label{sec:methods}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{quote} \textit{
+Detail the technique(s) that you have chosen to improve the business activity. Include all mathe-matical formulations, algorithms and heuristics that you have used.
+} \end{quote}
+
+\subsection{Base model}
+
+% melbourne flight data
+
+\textbf{Variables} \\
+$x_{id}$: [binary] equal to 1 if the traveller is in city $i$ on day $d$. \\ 	% location variable
+$y_{i}$: [binary] equal to 1 if the traveller ever visits city $i$. \\		% city variable
+$m_{ijd}$: [binary] equal to 1 if the traveller moves from city $i$ to city $j$ on day $d$. \\	% move variable
+
+\textbf{Parameters}\\
+$D$: the total number of days. \\
+$\mathcal{C}$: the set of cities available for visiting. \\
+$\mu_{ij}$: the cost to move from city $i$ to city $j$. \\
+$\delta_{i}$: the daily cost of city $i$. \\
+$\alpha$: the minimum number of days allowed in a city. \\
+$\omega$: the maximum number of days allowed in a city. \\
+
+\begin{equation*}
+\text{Min } \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{id} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} \mu_{ij} \cdot m_{ijd}\\
+\end{equation*}
+\begin{align}
+\text{s.t.~~~~~~~~} \sum_{d=1}^{D} x_{id} & \geq \alpha \cdot y_{i} & \forall i \in \mathcal{C}\\
+\sum_{d=1}^{D} x_{id} & \leq \omega \cdot y_{i} &  \forall i \in \mathcal{C}\\
+x_{id} + x_{j(d+1)} & \leq 1 + m_{ijd} & \forall i,j \in \mathcal{C}, d = 1..D-1 \\
+\sum_{i \in \mathcal{C}} x_{id} &= 1 & d = 1..D \\
+\sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} m_{ijd} &= 1 & d = 1..D-1 \\
+\sum_{d=1}^{D} \sum_{j \in \mathcal{C}} m_{ijd} &\leq 1 + \sum_{d=1}^{D} m_{iid} & \forall i \in \mathcal{C} \\
+x_{j1} + \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} m_{ijd} &\leq 1 + \sum_{d=1}^{D} m_{jjd} & \forall j \in \mathcal{C}\\
+x_{id}, y_{i}, m_{ijd} & \in \{0,1\} & \forall i, j \in \mathcal{C}, d = 1..D
+\end{align}
+
+\newpage
+\subsection{Decaying Enjoyment}
+Assuming that the enjoyment of staying in a city decays with the number of days stayed. We add the following to the model.
+
+\textbf{Variables}\\
+$s_{ij}$: [binary] equal to 1 if traveller stays in city i for j days.\\
+
+\textbf{Parameters} \\
+$u_{ij}$: The total utility of staying in city i for j days.\\
+
+Then we no longer need (1) and (2) since we hope that the traveller naturally leaves the city once the marginal enjoyment is low enough.
+
+Then the new model is 
+\begin{equation*}
+\text{Max } \sum_{i \in \mathcal{C}} \sum_{j=1}^{D} s_{ij} * u_{ij}\\
+\end{equation*}
+\begin{align}
+\text{s.t.~~~~~~~~}
+\sum_{j=1}^{D} s_{ij} &= y_{i} & \forall i \in \mathcal{C}\\
+s_{ij} \cdot j &\leq \sum_{d=1}^{D} x_{id} & \forall i \in \mathcal{C}, j=1...D\\
+x_{id} + x_{j(d+1)} & \leq 1 + m_{ijd} & \forall i,j \in \mathcal{C}, d = 1..D-1 \\
+\sum_{i \in \mathcal{C}} x_{id} &= 1 & d = 1..D \\
+\sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} m_{ijd} &= 1 & d = 1..D-1 \\
+\sum_{d=1}^{D} \sum_{j \in \mathcal{C}} m_{ijd} &\leq 1 + \sum_{d=1}^{D} m_{iid} & \forall i \in \mathcal{C} \\
+x_{j1} + \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} m_{ijd} &\leq 1 + \sum_{d=1}^{D} m_{jjd} & \forall j \in \mathcal{C}\\
+x_{id}, y_{i}, m_{ijd} & \in \{0,1\} & \forall i, j \in \mathcal{C}, d = 1..D
+\end{align}\\
+With this we find the optimal enjoyment possible for the traveller irrespective of cost, then we optimise again to minimise cost at the optimal enjoyment.
+\begin{equation*}
+\text{Min } \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{id} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} \mu_{ij} \cdot m_{ijd}\\
+\end{equation*}
+\begin{align*}
+\text{s.t.~~~~~~~~} & \\
+\text{(1)-(9) from previous} &\text{ model is statisfied and} \\
+\sum_{i \in \mathcal{C}} \sum_{j=1}^{D} s_{ij} * u_{ij} &= (\sum_{i \in \mathcal{C}} \sum_{j=1}^{D} s_{ij} * u_{ij})_{optimal}
+\end{align*}\\
+
+
+
+\pagebreak
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Data} 
+\label{sec:data}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{quote} \textit{
+Outline the scenarios that you wish to evaluate on. What data was collected to evaluate the
+scenarios? How was your data collected? Identify all sources. Show your data in this section.
+Larger datasets can be moved to the Appendices.
+} \end{quote}
+
+For the sake of brevity, we shall only provide data sets for the case of five cities here. This will be enough to demonstrate how we stored and used our data. The full data set can be found in the appendicies. All values are in Australian Dollars.
+
+Our base model needs to know the flight costs between all the cities. Initially we assumed that flights were uniform across all days of the trip and all times of each day. Our flight data was sourced from \url{momondo.com.au} \cite{momondo}. We searched for only the cheapest flights between any two cities which imposed more assumptions on our problem.
+
+\begin{table}[h]
+\caption{Airfares between Five Cities}
+\centering
+\vspace{1mm}
+\begin{tabular}{c|c|c|c|c|c}
+\hline
+\rule{0pt}{2ex}  & Moscow & Paris & London & Madrid & Rome \\
+\hline
+\rule{0pt}{2ex}Moscow & 0 & 146 & 126 & 202 & 146 \\
+Paris & 227 & 0 & 60 & 143 & 93 \\
+London & 213 & 82 & 0 & 249 & 160 \\
+Madrid & 188 & 86 & 136 & 0 & 144 \\
+Rome & 223 & 80 & 125 & 146 & 0 \\
+
+\end{tabular}
+\end{table}
+
+For simplicity we assumed that you can fly directly between all cities, even though in some cases the cheapest flight was not direct. This assumption is vaild as we are not attempting to find the optimal route around Europe, but instead minimise the overall cost of the trip or maximise the enjoyment gained. 
+
+Aside from the cost of airfares, the cost of living is another contributor to our model's objective value. All our daily living expenses data were sourced from \url{budgetyourtrip.com} \cite{budget}. To simplify the computation of our daily costs, we have assumed that there is no reduction in cost if a traveller books accommodation at a single hotel over multiple nights.
+
+\begin{table}[h]
+\caption{Daily Costs of Five Cities}
+\centering
+\vspace{1mm}
+\begin{tabular}{c|c|c|c|c|c}
+\hline
+\rule{0pt}{2ex}  & Moscow & Paris & London & Madrid & Rome \\
+\hline
+\rule{0pt}{2ex}Low & 36 & 81 & 110 & 57 & 68 \\
+Mid & 92 & 223 & 298 & 148 & 169 \\
+High & 233 & 657 & 845 & 393 & 423 \\
+
+\end{tabular}
+\end{table}
+
+The last contribution to our bae model's objective value came from the flights from and to Melbourne at the begining and end of the trip. We assumed that the traveller bought a return ticket, and so this will force the first and last city that they visit to be the same. This is a reasonable assumption to make as the cost of purchasing a return ticket was generally less than that of purchasing two separate one-way tickets.  This flight data was again sourced from \url{momondo.com.au} \cite{momondo}.
+
+\begin{table}[h]
+\caption{Return Flight Costs of Five Cities}
+\centering
+\vspace{1mm}
+\begin{tabular}{c|c|c|c|c}
+\hline
+\rule{0pt}{2ex} Moscow & Paris & London & Madrid & Rome \\
+\hline
+\rule{0pt}{2ex} 2311 & 2155 & 1908 & 1870 & 2584 \\
+
+\end{tabular}
+\end{table}
+
+We assumed that all flights occur in the morning. We make this simplification as if the flight was at midday then the daily cost would have contributions from the city the traveller was leaving and the city they are going to. Further to this, we assumed that the return flight to Melbourne occurred on the morning after the last day of the trip. This was again to simplify the calculation of daily costs. If the traveller leaves a city in the early morning then we assume that there is no living expenses for that day.
+
+% varying airfares extension data - removed assumption of uniformity across days - assumed morning flights
+
+% activity preference - city's activity ratings
+
+\pagebreak
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Extensions} 
+\label{sec:extensions}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\lipsum[3]
+
+\subsection{Varying Airfares}
+
+
+\subsection{Activity Preference}
+
+
+\subsection{Avoiding or Joining Another Traveller}
+
+
+\subsection{Multiple Person Trip}
+
+
+
+
+\pagebreak
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Results and Discussion} 
+\label{sec:results}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{quote} \textit{
+Present and discuss your results for each scenario.
+} \end{quote}
+
+\lipsum[3]
+
+\subsection{Varying Airfares}
+
+
+\subsection{Activity Preference}
+
+
+\subsection{Avoiding or Joining Another Traveller}
+
+
+\subsection{Multiple Person Trip}
+
+
+\pagebreak
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Conclusion and Recommendations}
+\label{sec:conc}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{quote} \textit{
+Write your conclusions here. Througout the whole document, do not forget to cite your sources \cite{example}.
+} \end{quote}
+
+\lipsum[3]
+
+
+\pagebreak
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Acknowledgements}
+\label{sec:acknow}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{quote} \textit{
+Acknowledge anyone (person, organisation etc.) who has contributed to your project.
+} \end{quote}
+
+alysson for being such a sexy beast
+
+
+
+\pagebreak
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Appendix}
+\label{sec:appen}
+
+Daily expenses table goes here
+
+\pagebreak
+ 
+\begin{landscape}
+\begin{table}[h]
+\caption{Airfares between Twenty Five Cities (Part I)}
+\centering
+\vspace{1mm}
+\begin{tabular}{c|c|c|c|c|c|c|c|c|c|c|c}
+\hline
+\rule{0pt}{2ex} From$\backslash$ To & Moscow & Paris & London & Madrid & Rome & Crete & Barcelona & Berlin & Budapest & Florence & Amsterdam   \\
+\hline
+\rule{0pt}{2ex}Moscow & 0 & 146 & 126 & 202 & 146 & 168 & 143 & 156 & 207 & 291 & 154 \\
+Paris & 227 & 0 & 60 & 143 & 93 & 123 & 139 & 110 & 162 & 85 & 52  \\
+London & 213 & 82 & 0 & 249 & 160 & 284 & 135 & 107 & 163 & 224 & 124  \\
+Madrid & 188 & 86 & 136 & 0 & 144 & 188 & 69 & 70 & 96 & 138 & 103  \\
+Rome & 223 & 80 & 125 & 146 & 0 & 177 & 39 & 96 & 69 & 84 & 94  \\
+Crete & 233 & 81 & 223 & 188 & 58 & 0 & 131 & 123 & 58 & 241 & 200 \\
+Barcelona & 200 & 121 & 79 & 76 & 32 & 165 & 0 & 143 & 108 & 103 & 90 \\
+Berlin & 130 & 53 & 81 & 97 & 83 & 153 & 110 & 0 & 83 & 214 & 92 \\
+Budapest & 249 & 133 & 125 & 96 & 41 & 123 & 96 & 76 & 0 & 164 & 157 \\
+Florence & 309 & 246 & 162 & 172 & 86 & 301 & 90 & 186 & 204 & 0 & 227 \\
+Amsterdam & 155 & 158 & 73 & 141 & 136 & 211 & 117 & 106 & 125 & 229 & 0 \\
+Prague & 112 & 122 & 100 & 112 & 48 & 193 & 116 & 108 & 138 & 144 & 97 \\
+Istanbul & 123 & 101 & 127 & 154 & 67 & 173 & 122 & 86 & 41 & 235 & 66 \\
+Vienna & 145 & 162 & 122 & 202 & 90 & 75 & 145 & 117 & 175 & 171 & 90 \\
+Venice & 167 & 65 & 17 & 117 & 84 & 191 & 97 & 119 & 110 & 152 & 75 \\
+Goreme & 172 & 206 & 205 & 237 & 137 & 253 & 181 & 142 & 86 & 522 & 136 \\
+Lisbon & 282 & 80 & 77 & 50 & 135 & 220 & 107 & 123 & 117 & 173 & 55 \\
+Nice & 278 & 127 & 119 & 143 & 48 & 220 & 50 & 90 & 138 & 173 & 121 \\
+Reykjavik & 566 & 190 & 284 & 337 & 242 & 484 & 217 & 260 & 246 & 454 & 246 \\
+Edinburgh & 233 & 194 & 71 & 135 & 204 & 371 & 179 & 115 & 151 & 390 & 168 \\
+Dublin & 196 & 87 & 58 & 102 & 146 & 265 & 107 & 86 & 143 & 253 & 138 \\
+Krakow & 191 & 135 & 94 & 126 & 142 & 286 & 107 & 176 & 138 & 181 & 143 \\
+Copenhagen & 258 & 174 & 71 & 158 & 160 & 315 & 95 & 56 & 157 & 200 & 152 \\
+Athens & 118 & 149 & 156 & 135 & 72 & 39 & 156 & 109 & 91 & 230 & 109 \\
+Munich & 188 & 120 & 136 & 163 & 69 & 112 & 135 & 110 & 126 & 192 & 170 \\
+\end{tabular}
+\end{table}
+\end{landscape}
+
+\pagebreak
+
+\begin{landscape}
+\begin{table}[h]
+\caption{Airfares between Twenty Five Cities (Part II)}
+\centering
+\vspace{1mm}
+\begin{tabular}{c|c|c|c|c|c|c|c|c|c|c|c}
+\hline
+\rule{0pt}{2ex} From$\backslash$ To & Prague & Istanbul & Vienna & Venice & Goreme & Lisbon & Nice & Reykjavik & Edinburgh & Dublin & Krakow  \\
+\hline
+\rule{0pt}{2ex}Moscow & 146 & 115 & 131 & 129 & 167 & 283 & 200 & 406 & 266 & 263 & 236 \\
+Paris & 165 & 150 & 140 & 68 & 375 & 178 & 114 & 240 & 124 & 106 & 152 \\
+London & 171 & 197 & 179 & 152 & 267 & 205 & 160 & 183 & 116 & 116 & 177 \\
+Madrid & 124 & 180 & 143 & 119 & 168 & 57 & 152 & 336 & 127 & 125 & 107 \\
+Rome & 94 & 74 & 105 & 71 & 157 & 155 & 62 & 180 & 155 & 174 & 147 \\
+Crete & 114 & 120 & 164 & 169 & 265 & 154 & 144 & 394 & 178 & 211 & 214 \\
+Barcelona & 110 & 141 & 103 & 74 & 203 & 69 & 50 & 241 & 151 & 117 & 100 \\
+Berlin & 123 & 99 & 176 & 104 & 197 & 118 & 108 & 245 & 100 & 102 & 128 \\
+Budapest & 113 & 50 & 149 & 97 & 100 & 104 & 130 & 265 & 117 & 104 & 107 \\
+Florence & 155 & 279 & 229 & 150 & 470 & 197 & 233 & 421 & 223 & 228 & 107 \\
+Amsterdam & 85 & 121 & 155 & 95 & 200 & 137 & 73 & 252 & 88 & 101 & 134 \\
+Prague & 0 & 85 & 152 & 65 & 186 & 174 & 135 & 256 & 134 & 114 & 141 \\
+Istanbul & 108 & 0 & 59 & 65 & 33 & 140 & 126 & 337 & 143 & 162 & 149 \\
+Vienna & 181 & 121 & 0 & 194 & 152 & 254 & 166 & 284 & 199 & 211 & 147 \\
+Venice & 96 & 177 & 152 & 0 & 274 & 153 & 200 & 316 & 135 & 146 & 127 \\
+Goreme & 206 & 27 & 55 & 230 & 0 & 257 & 130 & 384 & 189 & 198 & 440 \\
+Lisbon & 178 & 260 & 161 & 123 & 441 & 0 & 66 & 328 & 142 & 108 & 174 \\
+Nice & 96 & 180 & 157 & 128 & 224 & 116 & 0 & 313 & 175 & 97 & 189 \\
+Reykjavik & 285 & 334 & 370 & 323 & 332 & 325 & 334 & 0 & 175 & 97 & 189 \\
+Edinburgh & 140 & 294 & 370 & 127 & 613 & 174 & 168 & 192 & 0 & 39 & 139 \\
+Dublin & 110 & 217 & 156 & 146 & 396 & 114 & 138 & 254 & 34 & 0 & 137 \\
+Krakow & 180 & 247 & 197 & 205 & 362 & 171 & 139 & 341 & 133 & 119 & 0 \\
+Copenhagen & 96 & 234 & 229 & 192 & 363 & 191 & 154 & 270 & 138 & 149 & 149 \\
+Athens & 62 & 98 & 105 & 130 & 141 & 173 & 137 & 263 & 179 & 138 & 149 \\
+Munich & 194 & 103 & 194 & 165 & 176 & 159 & 117 & 263 & 142 & 143 & 154 \\
+\end{tabular}
+\end{table}
+\end{landscape}
+
+\pagebreak
+
+\begin{table}[h]
+\caption{Airfares between Twenty Five Cities (Part III)}
+\centering
+\vspace{1mm}
+\begin{tabular}{c|c|c|c}
+\hline
+\rule{0pt}{2ex} From$\backslash$ To & Copenhagen & Athens & Munich  \\
+\hline
+\rule{0pt}{2ex}Moscow &  162 & 141 & 152 \\
+Paris & 75 & 226 & 68 \\
+London & 130 & 145 & 133 \\
+Madrid & 108 & 169 & 184 \\
+Rome & 143 & 160 & 28 \\
+Crete & 176 & 46 & 144 \\
+Barcelona & 104 & 146 & 93 \\
+Berlin & 43 & 174 & 110 \\
+Budapest & 123 & 133 & 122 \\
+Florence & 164 & 268 & 158 \\
+Amsterdam & 60 & 128 & 183 \\
+Prague & 86 & 143 & 153 \\
+Istanbul & 51 & 70 & 83 \\
+Vienna & 177 & 154 & 149 \\
+Venice & 184 & 181 & 101 \\
+Goreme & 111 & 120 & 147 \\
+Lisbon & 192 & 171 & 124 \\
+Nice & 103 & 175 & 87 \\
+Reykjavik & 218 & 175 & 266 \\
+Edinburgh & 159 & 273 & 220 \\
+Dublin & 60 & 186 & 155 \\
+Krakow & 110 & 176 & 220 \\
+Copenhagen & 0 & 128 & 218 \\
+Athens & 131 & 0 & 145 \\
+Mucich & 131 & 166 & 0 \\
+\end{tabular}
+\end{table}
+\pagebreak
+
+For brevities sake, we shall only include the table detailing the augmentation data of Moscow.
+
+\begin{table}[h]
+\caption{Airfare Augmentation Data for Moscow}
+\centering
+\vspace{1mm}
+\begin{tabular}{c|c|c|c|c|c|c|c}
+\hline
+\rule{0pt}{2ex} City & Sunday & Monday & Tuesday & Wednesday & Thursday & Friday & Saturday \\
+\hline
+\rule{0pt}{2ex}Moscow & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+Paris & 4 & 1 & 0 & 3 & 8 & 13 & 10 \\
+London & 11 & 3 & 0 & 2 & 6 & 8 & 6 \\
+Madrid & 10 & 3 & 0 & 6 & 13 & 17 & 14 \\
+Rome & 4 & 1 & 0 & 3 & 11 & 12 & 12 \\
+Crete & 2 & 0 & 0 & 2 & 7 & 13 & 5 \\
+Barcelona & 12 & 3 & 0 & 7 & 13 & 16 & 14 \\
+Berlin & 1 & 0 & 2 & 7 & 12 & 7 & 5 \\
+Budapest & 0 & 2 & 2 & 7 & 10 & 7 & 5 \\
+Florence & 5 & 0 & 5 & 15 & 19 & 15 & 7 \\
+Amsterdam & 0 & 0 & 4 & 11 & 15 & 8 & 3 \\
+Prague & 0 & 0 & 3 & 7 & 11 & 7 & 3 \\
+Istanbul & 2 & 2 & 9 & 11 & 12 & 7 & 0 \\
+Vienna & 0 & 0 & 7 & 12 & 16 & 14 & 7 \\
+Venice & 2 & 0 & 5 & 14 & 22 & 14 & 6 \\
+Goreme & 4 & 1 & 0 & 2 & 5 & 6 & 15 \\
+Lisbon & 4 & 0 & 3 & 8 & 13 & 10 & 5 \\
+Nice & 3 & 0 & 4 & 12 & 16 & 17 & 6 \\
+Reykjavik & 1 & 0 & 6 & 4 & 6 & 7 & 1 \\
+Edinburgh & 1 & 0 & 2 & 8 & 16 & 12 & 10 \\
+Dublin & 6 & 0 & 3 & 10 & 20 & 17 & 15 \\
+Krakow & 0 & 0 & 6 & 6 & 16 & 6 & 2 \\
+Copenhagen & 0 & 0 & 3 & 6 & 10 & 10 & 10 \\
+Athens & 2 & 0 & 3 & 6 & 13 & 15 & 3 \\
+Mucich & 1 & 0 & 5 & 11 & 15 & 18 & 7 \\
+\end{tabular}
+\end{table}
+
+
+
+\pagebreak
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{thebibliography}{99}
+%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%
+\bibitem{momondo}
+momondo.com.au,
+\emph{Global Travel Search Engine}, accessed 6 May 2015.
+Available online: \url{http://www.momondo.com.au/}
+%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%
+\bibitem{budget}
+Budget Your Trip,
+\emph{Trvavel Cost Search}, accessed 13 May 2015.
+Available online: \url{http://www.budgetyourtrip.com/}
+%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%
+\bibitem{example}
+Foo, Bar, Smith (2002)
+\emph{Example Title}.
+Example Publisher. ISBN XXX-XXX
+%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%
+\end{thebibliography}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
