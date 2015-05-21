@@ -3,11 +3,12 @@ uses "mmxprs";
 setparam("REALFMT", "%.3f")
 
 declarations
-	numCities = 5
-    numDays = 10
-    
+	numCities = 15
+    numDays = 15
+
 	CITIES = 1..numCities
     DAYS = 1..numDays
+    WEEKDAYS = 1..7
 	
 	location : array(CITIES, DAYS) of mpvar
 	city : array(CITIES) of mpvar
@@ -16,15 +17,19 @@ declarations
 	
 	names: array(CITIES) of string 
 	travel : array(CITIES, CITIES) of integer
-	daily : array(CITIES) of integer
+	fromMelb : array(CITIES) of integer
+    toMelb : array(CITIES) of integer
 	
 	baseUtility: array(CITIES) of real
 	utility: array(CITIES, DAYS) of real
+
+	dailyLow : array(CITIES) of integer
+    dailyMid : array(CITIES) of integer
+    dailyHigh : array(CITIES) of integer
 	
  	minDays : integer
  	maxDays : integer
  	
- 	cityDays: array(CITIES) of linctr
  	totalUtility: linctr
  	totalCost : linctr
 end-declarations
@@ -34,9 +39,16 @@ function findUtility(city:integer, day:integer):real
 	returned := baseUtility(city) * 0.9^day
 end-function
 
-names:: (1..5)["Moscow","Paris","London","Madrid","Rome"]
-
-baseUtility :: [1.209, 4.483, 4.878, 2.529, 4.2]
+initialisations from "BaseData15.txt"
+	names as "names"
+	dayNames as "dayNames"
+ 	travel as "travel"
+ 	toMelb as "toMelb"
+ 	fromMelb as "fromMelb"
+ 	dailyLow as "dailyLow"
+ 	dailyMid as "dailyMid"
+ 	dailyHigh as "dailyHigh"
+end-initialisations
 
 forall(c in CITIES) do
 	utility(c,1) := baseUtility(c)
@@ -46,13 +58,6 @@ forall(c in CITIES, d in 2..numDays) do
 	utility(c,d) := utility(c,d-1) + findUtility(c,d)
 end-do
 
-travel :: [0, 146, 126, 202, 146,
-		   227, 0, 60, 143, 93,
-		   213, 82, 0, 249, 160,
-		   188, 86, 136, 0, 144,
-		   223, 80, 125, 146, 0]
-
-daily :: [10, 10, 20, 30, 5]
 
 forall(c in CITIES) do
     sum (d in DAYS) daysStay(c, d) = city(c) ! Only one stay duration is valid for each city, only if city is every visited.
@@ -78,17 +83,20 @@ forall(f in CITIES, t in CITIES, d in DAYS) do
 end-do
 
 forall(c in CITIES, d in DAYS) do
+	sum(d in DAYS, j in CITIES) move(i, j, d) <= 1 + sum(d in DAYS) move(i, i ,d)
 	daysStay(c, d) * d <= sum(d2 in DAYS) location(c, d2) !daysStay(c,d) is one if staying d days in city c
 end-do
 
-totalCost := sum(c in CITIES, d in DAYS) location(c, d) * daily(c) +
-             sum(f in CITIES, t in CITIES, d in DAYS) move(f, t, d) * travel(f, t)
+totalCost := sum(c in CITIES, d in DAYS) location(c, d) * dailyMid(c) +
+             sum(f in CITIES, t in CITIES, d in DAYS) move(f, t, d) * travel(f, t) +
+             sum(c in CITIES) (location(c, 1) * fromMelb(c) + location(c, numDays) * toMelb(c))
 
 totalUtility := sum(c in CITIES, d in DAYS) daysStay(c, d) * utility(c, d)
 
 maximise(totalUtility)
 
-totalUtility = totalUtility.sol
+totalUtility <= totalUtility.sol
+totalUtility >= 0.95 * totalUtility.sol
 
 minimise(totalCost)
 
