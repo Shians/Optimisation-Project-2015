@@ -18,7 +18,7 @@ declarations
     
     travel : array(CITIES, CITIES) of integer
     fromMelb : array(CITIES) of integer
-    toMelb : array(CITIES,WEEKDAYS) of integer
+    toMelb : array(CITIES) of integer
     
     dailyLow : array(CITIES) of integer
     dailyMid : array(CITIES) of integer
