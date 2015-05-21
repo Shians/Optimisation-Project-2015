@@ -39,7 +39,7 @@ end-function
 
 names :: (1..5)["Moscow","Paris","London","Madrid","Rome"]
 
-budget :: [1000, 1000]
+budget :: [500, 500]
 
 baseUtility :: [1.209, 4.483, 4.878, 2.529, 4.2]
 
@@ -118,7 +118,7 @@ forall(c in CITIES, d in DAYS) do
 end-do
 
 forall(c in CITIES, d in DAYS) do
-	location(c, d, 2) + partner(c, d) >= 2*together(c, d)
+	location(c, d, 2) + partner(c, d) <= 1 + together(c, d)
 end-do
 
 forall(c in CITIES, d in DAYS) do
