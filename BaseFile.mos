@@ -37,6 +37,7 @@ initialisations from "BaseData.txt"
  	dailyLow as "dailyLow"
  	dailyMid as "dailyMid"
  	dailyHigh as "dailyHigh"
+    baseUtility as "baseUtility"
 end-initialisations
 
 minDays := 2
