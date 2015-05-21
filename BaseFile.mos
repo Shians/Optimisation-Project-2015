@@ -74,7 +74,7 @@ end-do
 
 totalCost := sum(c in CITIES, d in DAYS) location(c, d) * dailyMid(c) +
              sum(f in CITIES, t in CITIES, d in DAYS) move(f, t, d) * travel(f, t) +
-             sum(c in CITIES) (location(c, 1) * fromMelb(c) + location(c, numDays) * toMelb(c,1+numDays mod 7))
+             sum(c in CITIES) (location(c, 1) * fromMelb(c) + location(c, numDays) * toMelb(c))
 
 minimise(totalCost)
 
@@ -88,7 +88,7 @@ end-do
 
 writeln("")
 writeln("~~~~~Cost Breakdown~~~~~")
-writeln("Melbourne Airfares: $", sum(c in CITIES) (location(c, 1).sol*fromMelb(c) + location(c, numDays).sol * toMelb(c,1+numDays mod 7)))
+writeln("Melbourne Airfares: $", sum(c in CITIES) (location(c, 1).sol*fromMelb(c) + location(c, numDays).sol * toMelb(c)))
 writeln("Europe Airfares:    $", sum(f in CITIES, t in CITIES, d in DAYS) move(f, t, d).sol * travel(f, t))
 writeln("Daily Expenses:     $", sum(c in CITIES, d in DAYS) location(c, d).sol * dailyMid(c))
 
