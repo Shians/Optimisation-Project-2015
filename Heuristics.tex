@@ -1,0 +1,109 @@
+%%%%% Latex document containing the section Heuristics for the paper ``Planning an Optimal Trip to Europe''.
+
+%%%%% Date created:   22 May 2015
+%%%%% Date modified   22 May 2015
+%%%%% Created by:     John Gilbertson
+
+
+\documentclass[12pt]{article}
+
+\usepackage{latexsym,amssymb,amsmath,epsfig,amsfonts,graphicx,url,pdflscape,lipsum}
+
+\usepackage{algorithmic, algorithm}
+
+\setlength{\topmargin}{-10pt}
+\setlength{\headsep}{0pt}
+\setlength{\headheight}{0pt}
+\setlength{\textheight}{680pt}
+\setlength{\oddsidemargin}{0pt}
+\setlength{\evensidemargin}{0pt}
+\setlength{\textwidth}{460pt}
+\setlength{\parskip}{.30cm}
+\parskip=10pt
+
+\title{Heuristics}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+This problem has many similarities with the Travelling Salesman Problem (TSP), which is known not to be computationally efficient to solve. To avoid this issue, it can be useful to solve the problem using a greedy heuristic.
+
+\section{Cheap Heuristic}
+
+The cheap heuristic attempts to find the cheapest 15 day trip with 15 possible cities. For each city, the heuristic calculates the cost of travelling from Melbourne to that city and remaining in that city for maxDays. The algorithm then chooses the city that has the minimum cost. In the same way, cities are added recursively until there are no days left. The traveller then flies back to Melbourne from their final city.
+
+\begin{algorithm}[ht!]
+\caption{Cheap Heuristic}
+\begin{algorithmic}
+\STATE Begin in Melbourne
+\FOR {each city $i$}
+\STATE $\text{cost}(i) = \text{costFromMelb}(i) + \text{maxDays} \times \text{costDaily}(i)$
+\ENDFOR
+\STATE Go to city $i$ with the minimum cost and stay for maxDays
+\STATE $\text{daysLeft} = \text{days} - \text{maxDays}$
+\WHILE {$\text{daysLeft} > 0$}
+\STATE $step = \min (\text{maxDays}, \text{daysLeft})$
+\FOR {each city $i$ not yet visited}
+\STATE $\text{cost}(i) = \text{costTravel}(\text{currentCity}, i) + step \times \text{costDaily}(i)$
+\ENDFOR
+\STATE Go to city $i$ with the minimum cost and stay for $step$ days
+\STATE Decrement daysLeft by $step$
+\ENDWHILE
+\STATE Return to Melbourne from final city
+\end{algorithmic}
+\end{algorithm}
+
+Using maxDays $= 4$ and the medium daily costs defined in Section DATA, the output of this heuristic is shown in Table~\ref{cheap_heuristic_output}. The heuristic solution is to spend the first 4 days in Istanbul, then fly to Moscow for 4 days, followed by Prague for 4 days and finally Venice for 3 days. The cost of this trip is $\$4,060$ including Melbourne flights, flights within Europe and daily costs. The utility of this trip is $1,102$.
+
+\begin{table}[ht!]
+	\centering
+	\begin{tabular}{| c || c |}
+		\hline
+		Number of Days & City \\ \hline \hline
+		4 & Istanbul \\ \hline
+		4 & Moscow \\ \hline
+		4 & Prague \\ \hline
+		3 & Venice \\ \hline
+	\end{tabular}
+	\caption{Cheap Heuristic Output}
+	\label{cheap_heuristic_output}
+\end{table}
+
+\section{Maximum Utility Heuristic}
+
+The maximum utility heuristic attempts to find the 15 day trip with the maximum utility regardless of cost. At each iteration, the algorithm chooses the city with the maximum utility from the set of cities containing the unvisited cities and the current city. After spending a day in any city, the utility of staying another day in that city is multiplied by a decay factor.
+
+\begin{algorithm}[ht!]
+\caption{Maximum Utility Heuristic}
+\begin{algorithmic}
+\STATE Begin in Melbourne
+\FOR {$j = 1, \ldots,$ days}
+\STATE Find city $i$ with the maximum utility in the set $\{ \text{unvisited cities} \} \bigcup \{ \text{current city} \}$
+\STATE Go to city $i$
+\STATE Reduce the utility of the current city by the decay factor
+\ENDFOR
+\STATE Return to Melbourne from final city
+\end{algorithmic}
+\end{algorithm}
+
+Using a decay factor of 0.98 and the medium daily costs defined in Section DATA, the output of this heuristic is shown in Table~\ref{max_utility_heuristic_output}. The utility of this trip is $1,330$, which is $21\%$ greater than the utility of the trip found using the cheap heuristic. The cost of this trip is $\$5,450$, which is $34\%$ ($\$1,390$) greater than the cheap heuristic.
+
+\begin{table}[ht!]
+	\centering
+	\begin{tabular}{| c || c |}
+		\hline
+		Number of Days & City \\ \hline \hline
+		4 & London \\ \hline
+		4 & Paris \\ \hline
+		2 & Berlin \\ \hline
+		4 & Rome \\ \hline
+		1 & Barcelona \\ \hline
+	\end{tabular}
+	\caption{Maximum Utility Heuristic Output}
+	\label{max_utility_heuristic_output}
+\end{table}
+
+\end{document}
