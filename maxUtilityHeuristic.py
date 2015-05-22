@@ -5,7 +5,7 @@ import numpy as np
 
 days = 15
 cities = 15
-decayFactor = 0.9
+decayFactor = 0.98
 
 baseUtility = pd.Series(data = [71.017, 92.66, 100, 77.356, 85.238, 50.707, 78.964, 87.116, 67.093, 74.819, 73.17, 77.126, 77.067, 75.922, 77.436])
 travel = pd.read_csv("AirfareData15.csv", sep = ",", header = 0)
@@ -50,4 +50,4 @@ print("\nTotal Cost : ${0}".format(cost))
 print("Total Utility : {0}\n".format(totalUtility))
 
 for i in range(days):
-	print("Day {0} in {1}".format(i + 1, names[location[i]]))
+	print("Day {0:2d} in {1}".format(i + 1, names[location[i]]))
