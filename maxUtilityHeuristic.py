@@ -5,9 +5,6 @@ import numpy as np
 
 days = 15
 cities = 15
-
-#minDays = 2
-maxDays = 4
 decayFactor = 0.9
 
 baseUtility = pd.Series(data = [71.017, 92.66, 100, 77.356, 85.238, 50.707, 78.964, 87.116, 67.093, 74.819, 73.17, 77.126, 77.067, 75.922, 77.436])
@@ -18,16 +15,11 @@ toMelb = pd.Series(data = [803, 844, 875, 1061, 934, 922, 983, 921, 1033, 1186, 
 
 names = ["Moscow", "Paris", "London", "Madrid", "Rome", "Crete", "Barcelona", "Berlin", "Budapest", "Florence", "Amsterdam", "Prague", "Istanbul", "Vienna", "Venice"]
 
-utility = pd.Series(data = [np.nan] * cities)
-
-for i in range(cities):
-	utility[i] = baseUtility[i]
-
+utility = baseUtility
 current = utility.idxmax()
 
 cost = fromMelb[current] + dailyMid[current]
 totalUtility = utility[current]
-runningDays = 1
 
 utility[current] *= decayFactor
 
@@ -37,25 +29,18 @@ location.append(current)
 for i in range(days - 1):
 	next = utility.idxmax()
 
-	#if (current == next or runningDays < minDays):
 	if (current == next):
 		cost += dailyMid[current]
 		totalUtility += utility[current]
-		runningDays += 1
-
-		if (runningDays < maxDays):
-			utility[current] *= decayFactor
-		else:
-			utility[current] = np.nan
 
 	else:
 		cost += travel.iat[current, next] + dailyMid[next]
 		totalUtility += utility[next]
-		runningDays = 0
 
 		utility[current] = np.nan
 		current = next
 
+	utility[current] *= decayFactor
 	location.append(current)
 
 cost += toMelb[current]
