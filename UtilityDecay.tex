@@ -3,6 +3,7 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{chngcntr}
+\usepackage{lineno, algorithmic, algorithm}
 
 \counterwithin*{equation}{section}
 \counterwithin*{equation}{subsection}
@@ -82,4 +83,115 @@ With this we find the optimal enjoyment possible for the traveller irrespective 
 \sum_{i \in \mathcal{C}} \sum_{j=1}^{D} s_{ij} * u_{ij} &= (\sum_{i \in \mathcal{C}} \sum_{j=1}^{D} s_{ij} * u_{ij})_{optimal}
 \end{align*}\\
 
+\newpage
+\section{Results}
+We run the model using a 10\% per day rate of decay with the contraint that we stay at least 2 days in any city that we visit. Below is the trip that maximises the utility for 15 days user such conditions. It's noted that this model as it was formulated takes a very long time to run with computations not terminating after 3+ hours, however a trip of 10 days takes only seconds to run and we note that the utility of a trip with more days can only be higher if budget is not constrained. 
+
+Also note that since the utility scores are normalised in a way that the maximum is 100, we can also obtain an upper bound to use in the model by adding $100 \cdot (\text{extra days})$ to the optimal solution of the shorter trip. In theory this brings us closer to the convex hull which should aid the model, but in practice the solving times with such constraints were sometimes detrimental. Though tweaking around the theoretical bounds did eventually produce results in reasonable time, there was no observed pattern in how to construct the highly beneficial bounds. \\
+\begin{table}[h]
+\caption{Trip plan with optimised decaying utility for 15 days}
+\centering
+\begin{tabular}{c|c|c}
+	\hline
+	\rule{0pt}{2ex} Days & \# of Days & City \\
+	\hline
+	1-2 & 2 & Rome \\
+	3-4 & 2 & Barcelona \\
+	5-6 & 2 & Venice \\
+	7-10 & 3 & London \\
+	11-12 & 2 & Berlin \\
+	13-15 & 2 & Paris \\
+	\hline
+\end{tabular}
+\vspace{1mm}
+\end{table}\\
+This trip has a total utility of 1219 and cost of $\$5195$, for comparison we develop a simple heuristic from observations of the behaviour of the MIP model.
+
+\begin{algorithm}[h!]
+\begin{algorithmic}[1]
+\STATE Algorithm MaximumUtilityHeuristic
+\WHILE{DaysLeft $>$ 0}
+	\STATE{Find highest utility $City$}
+	\IF{$Days_{City} > 0$}
+	\STATE{$Days_{City} \gets Days_{City}+1$}
+	\STATE{$Utility_{City} \gets Utility_{City} \cdot DecayFactor$}
+	\STATE{$DaysLeft \gets DaysLeft-1$}
+	\ELSE
+	\STATE{$Days_{City} \gets Days_{City}+2$}
+	\STATE{$Utility_{City} \gets Utility_{City} \cdot DecayFactor^2$}
+	\STATE{$DaysLeft \gets DaysLeft-2$}
+	\ENDIF
+\ENDWHILE
+\STATE{$CitiesList \gets \{City:Days_{City} > 0\}$}
+\STATE{$Trip_1 \gets \text{$City$ in } CitiesList \text{ with lowest cost from Melbourne}$}
+\STATE{$CurrentCity \gets Trip_1$}
+\STATE{\textbf{Remove} $CurrentCity$ from $CitiesList$}
+\STATE{$i \gets 1$}
+\WHILE{$CitiesList$ not empty}
+\STATE{$Trip_{i+1} \gets City \text{ in } CitiesList \text{ with cheapest flight from } CurrentCity$}
+\STATE{$CurrentCity \gets Trip_{i+1}$}
+\STATE{\textbf{Remove} $CurrentCity$ \text{from} $CitiesList$}
+\STATE{$i \gets i+1$}
+\ENDWHILE
+\STATE{$Trip$ now stores order in which cities are visited and $Days$ stores the days spent in each city.}
+\end{algorithmic}
+\caption{Decaying utility algorithm}
+\label{alg:bstSearch}
+\end{algorithm}
+This is essentially a greedy algorithm which looks for the city with the highest current utility and adds 2 days to its staying duration if it's not already a part of the trip and 1 if it's already being visited. Then we note that flying as little as possible will reduce cost so all days spent in a given city will be spend together, therefore a greedy algorithm is used to find the order in which to visit the cities. Now with a decay factor of $0.9$ we obtain the following trip from the heuristic.
+\begin{table}[h]
+\caption{Trip plan from heuristic for decaying utility for 15 days}
+\centering
+\begin{tabular}{c|c|c}
+	\hline
+	\rule{0pt}{2ex} Days & \# of Days & City \\
+	\hline
+	1-3 & 3 & London \\
+	4-5 & 2 & Paris \\
+	6-7 & 2 & Berlin \\
+	8-9 & 2 & Bercelona \\
+	10-11 & 2 & Venice \\
+	12-13 & 2 & Rome \\
+	14-15 & 2 & Madrid \\
+	\hline
+\end{tabular}
+\vspace{1mm}
+\end{table}\\
+This trip gives an utility of 1096 and total cost fo $\$5101$. Therefore it ends up being slightly cheaper than the solution found by the model but also achieves lower utility. We look at the breakdown of costs.\\
+\begin{table}[h]
+\caption{Comparison between MIP and Heuristic solutions}
+\centering
+\begin{tabular}{r|c|c}
+\hline
+& MIP & Heuristic \\
+\hline
+Melbourne Travel & \$1926 & \$1928 \\
+Europe Travel & \$290 & \$419 \\
+Daily Costs & \$2979 & \$2754 \\
+\hline
+\hline
+\textbf{Total} & \$5195 & \$5101 \\
+\hline
+\textbf{Utility} & 1219 & 1096 \\
+\hline
+\end{tabular}	
+\end{table} \\
+Then we see that the heuristic performs reasonably well and the derived utility can be used as a lower bound in the MIP optimisation. We set a budget constraint of $\$4500$ and obtain the following solution with a utility of $1096$ at a total cost of $\$4465$.
+\begin{table}[h]
+\caption{Trip plan from heuristic for decaying utility for 15 days}
+\centering
+\begin{tabular}{c|c|c}
+	\hline
+	\rule{0pt}{2ex} Days & \# of Days & City \\
+	\hline
+	1-2 & 2 & Barcelona \\
+	3-4 & 2 & Vienna \\
+	5-8 & 4 & Berlin \\
+	9-11 & 3 & Paris \\
+	12-15 & 4 & Amsterdam \\
+	\hline
+\end{tabular}
+\vspace{1mm}
+\end{table}\\
+Now coincidentally this gives the same utility as the heuristic solution but for a significantly lower cost, this gives a good indication of the strength of the model over the naive heuristic method.
 \end{document}
