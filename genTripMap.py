@@ -3,7 +3,7 @@ im = Image.open("Europe.png")
 draw = ImageDraw.Draw(im)
 
 # define the trip
-trip = ["Paris", "London", "Madrid", "Moscow", "Rome","Crete","Prague","Venice","Barcelona","Istanbul"]
+trip = ["Paris", "London", "Madrid", "Florence", "Moscow","Crete","Prague","Venice","Barcelona","Istanbul"]
 
 names = ["Moscow","Paris","London","Madrid","Rome","Crete","Barcelona","Berlin","Budapest","Florence","Amsterdam","Prague","Istanbul","Vienna","Venice"]
 
@@ -27,12 +27,18 @@ travel = [
 
 maxPrice = 309
 
-location = [(900,100),(350,370),(325,260),(210,550),(900,600),(800,700),(450,550),(999,555),(222,111),(333,888),(888,333),(555,666),(111,111),(123,123),(456,456)]
+location = [(900,100),(350,370),(325,260),(210,550),(900,600),(800,700),(450,550),(999,555),(222,111),(333,111),(888,333),(555,666),(111,111),(123,123),(456,456)]
 
 for i in range(len(trip)-1):
-    draw.line(location[names.index(trip[i])] + location[names.index(trip[i+1])], fill="hsl(0,100%,0%)", width=5)
-    draw.line(location[names.index(trip[i])] + location[names.index(trip[i+1])], \
-        fill="hsl(%d,100%%,50%%)" % (120-120*travel[names.index(trip[i])][names.index(trip[i+1])]/maxPrice), width=3)
+    orig = names.index(trip[i])
+    dest = names.index(trip[i+1])
 
+    # draw a black line for the border
+    draw.line(location[orig] + location[dest], fill="hsl(0,100%,0%)", width=6)
+    
+    # draw a coloured line
+    colour = 120-120*travel[orig][dest]/maxPrice
+    draw.line(location[orig] + location[dest], fill="hsl(%d,100%%,50%%)" % (colour), width=4)
+    
 im.save("Trip.png")
 
