@@ -1,66 +1,62 @@
-model MeetUp
+model ModelName
 uses "mmxprs";
-setparam("REALFMT", "%.3f")
+setparam("REALFMT", "%.2f")
 
 declarations
-	numCities = 5
+    numCities = 15
     numDays = 10
     numPeople = 2
-    
-	CITIES = 1..numCities
+
+    CITIES = 1..numCities
     DAYS = 1..numDays
-    PEOPLE = 1..numPeople
-	
-	location : array(CITIES, DAYS, PEOPLE) of mpvar
-	city : array(CITIES, PEOPLE) of mpvar
-	move : array(CITIES, CITIES, DAYS, PEOPLE) of mpvar
-	daysStay : array(CITIES, DAYS, PEOPLE) of mpvar
-	
-	together : array(CITIES, DAYS) of mpvar
-	daysTogether : linctr
-	
-	partner : array(CITIES, DAYS) of real
-	budget : array(PEOPLE) of integer
-	
-	names : array(CITIES) of string 
-	travel : array(CITIES, CITIES) of integer
-	daily : array(CITIES) of integer
-	
-	baseUtility : array(CITIES) of real
-	utility : array(CITIES, DAYS) of real
- 	
- 	totalUtility : array(PEOPLE) of linctr
- 	totalCost : array(PEOPLE) of linctr
+	PEOPLE = 1..numPeople
+
+    location : array(CITIES, DAYS, PEOPLE) of mpvar
+    city : array(CITIES, PEOPLE) of mpvar
+    move : array(CITIES, CITIES, DAYS, PEOPLE) of mpvar
+    
+    partner : array(CITIES, DAYS) of real
+    together : array(CITIES, DAYS) of mpvar
+    daysTogether : linctr
+
+    names: array(CITIES) of string 
+    
+    travel : array(CITIES, CITIES) of integer
+    fromMelb : array(CITIES) of integer
+    toMelb : array(CITIES) of integer
+    
+    baseUtility : array(CITIES) of real
+    dailyMid : array(CITIES) of integer
+    budget : array(PEOPLE) of integer
+
+    minDays : integer
+    maxDays : integer
+    
+    epsilon : real
+    
+    totalUtility : array(PEOPLE) of linctr
+    totalCost : array(PEOPLE) of linctr
 end-declarations
 
-function findUtility(city:integer, day:integer):real
-	returned := baseUtility(city) * 0.9^day
-end-function
+initialisations from "BaseData15.txt"
+	names as "names"
+ 	travel as "travel"
+ 	toMelb as "toMelb"
+ 	fromMelb as "fromMelb"
+ 	baseUtility as "baseUtility"
+ 	dailyMid as "dailyMid"
+end-initialisations
 
-names :: (1..5)["Moscow","Paris","London","Madrid","Rome"]
+minDays := 2
+maxDays := 4
 
-budget :: [500, 200]
+budget :: [5000, 3500]
 
-baseUtility :: [1.209, 4.483, 4.878, 2.529, 4.2]
-
-forall(c in CITIES) do
-	utility(c,1) := baseUtility(c)
-end-do
-
-forall(c in CITIES, d in 2..numDays) do
-	utility(c,d) := utility(c,d-1) + findUtility(c,d)
-end-do
-
-travel :: [0, 146, 126, 202, 146,
-		   227, 0, 60, 143, 93,
-		   213, 82, 0, 249, 160,
-		   188, 86, 136, 0, 144,
-		   223, 80, 125, 146, 0]
-
-daily :: [10, 10, 20, 30, 5]
+epsilon := 0.005
 
 forall(c in CITIES, p in PEOPLE) do
-    sum (d in DAYS) daysStay(c, d, p) = city(c, p) ! Only one stay duration is valid for each city, only if city is every visited.
+    sum (d in DAYS) location(c, d, p) >= minDays * city(c, p)
+    sum (d in DAYS) location(c, d, p) <= maxDays * city(c, p)
 end-do
 
 forall(d in DAYS - {numDays}, f in CITIES, t in CITIES, p in PEOPLE) do
@@ -73,52 +69,70 @@ forall(d in DAYS, p in PEOPLE) do
 end-do
 
 forall(c in CITIES, d in DAYS, p in PEOPLE) do
-	daysStay(c, d, p) * d <= sum(d2 in DAYS) location(c, d2, p) !daysStay(c,d) is one if staying d days in city c
-end-do
-
-forall(c in CITIES, d in DAYS, p in PEOPLE) do
-    city(c, p) is_binary
     location(c, d, p) is_binary
-    daysStay(c, d, p) is_binary
 end-do
 
 forall(f in CITIES, t in CITIES, d in DAYS, p in PEOPLE) do
     move(f, t, d, p) is_binary
 end-do
 
-forall(p in PEOPLE) do
-	totalCost(p) := sum(c in CITIES, d in DAYS) location(c, d, p) * daily(c) +
-					sum(f in CITIES, t in CITIES, d in DAYS) move(f, t, d, p) * travel(f, t)
-	totalUtility(p) := sum(c in CITIES, d in DAYS) daysStay(c, d, p) * utility(c, d)
+forall(c in CITIES, p in PEOPLE) do
+	city(c, p) is_binary
+end-do
+
+forall(i in CITIES, p in PEOPLE) do
+	sum(d in DAYS, j in CITIES) move(i, j, d, p) <= 1 + sum(d in DAYS) move(i, i, d, p)
+	location(i, 1, p) + sum(d in DAYS, j in CITIES) move(j, i, d, p) <= 1 + sum(d in DAYS) move(i, i, d, p)
 end-do
 
 forall(p in PEOPLE) do
+	totalUtility(p) := sum(c in CITIES, d in DAYS) location(c, d, p) * baseUtility(c)
+	
+	totalCost(p) := sum(c in CITIES, d in DAYS) location(c, d, p) * dailyMid(c) +
+    	         	sum(f in CITIES, t in CITIES, d in DAYS) move(f, t, d, p) * travel(f, t) +
+        	     	sum(c in CITIES) (location(c, 1, p) * fromMelb(c) + location(c, numDays, p) * toMelb(c))
+        	     	
 	totalCost(p) <= budget(p)
 end-do
 
+writeln("Person 1\n")
+
+writeln("Maximising Utility for Person 1 ...")
+
 maximise(totalUtility(1))
 
-totalUtility(1) = totalUtility(1).sol
+writeln("Max Utility : ", totalUtility(1).sol)
+
+totalUtility(1) >= totalUtility(1).sol * (1 - epsilon)
+totalCost(1) <= totalCost(1).sol
+
+writeln("\nMimimising Cost for Person 1 ...")
 
 minimise(totalCost(1))
 
-writeln("Person 1")
+writeln("Total Cost    : $", totalCost(1).sol)
+writeln("Total Utility :  ", totalUtility(1).sol)
 
-writeln("Total Cost: $", totalCost(1).sol)
-writeln("Total Utility: ", totalUtility(1).sol)
+writeln("")
 
 forall(d in DAYS, c in CITIES) do
-    if (location(c, d, 1).sol > 0) then
-        writeln("Day ", d, " in ", names(c))
+    if (location(c, d, 1).sol = 1) then
+        writeln("Day ", d," in ", names(c))
     end-if
 end-do
+
+writeln("")
+writeln("~~~~~~~~Cost Breakdown~~~~~~~~")
+writeln("Melbourne Airfares : $", sum(c in CITIES) (location(c, 1, 1).sol * fromMelb(c) + location(c, numDays, 1).sol * toMelb(c)))
+writeln("Europe Airfares    : $", sum(f in CITIES, t in CITIES, d in DAYS) move(f, t, d, 1).sol * travel(f, t))
+writeln("Daily Expenses     : $", sum(c in CITIES, d in DAYS) location(c, d, 1).sol * dailyMid(c))
 
 forall(c in CITIES, d in DAYS) do
 	partner(c, d) := location(c, d, 1).sol
 end-do
 
 forall(c in CITIES, d in DAYS) do
-	location(c, d, 2) + partner(c, d) >= 2*together(c, d)
+	location(c, d, 2) + partner(c, d) >= 2 * together(c, d)
 end-do
 
 forall(c in CITIES, d in DAYS) do
@@ -127,26 +141,45 @@ end-do
 
 daysTogether := sum(c in CITIES, d in DAYS) together(c, d)
 
+writeln("\nPerson 2\n")
+
+writeln("Maximising days together ...")
+
 maximise(daysTogether)
 
+writeln("Together : ", daysTogether.sol, " days\n")
+
 daysTogether = daysTogether.sol
+totalUtility(2) >= totalUtility(2).sol
+
+writeln("Maximising Utility for Person 2 ...")
 
 maximise(totalUtility(2))
 
-totalUtility(2) = totalUtility(2).sol
+writeln("Max Utility : ", totalUtility(2).sol)
+
+totalUtility(2) >= totalUtility(2).sol * (1 - epsilon)
+totalCost(2) <= totalCost(2).sol
+
+writeln("\nMinimising Cost for Person 2 ...")
 
 minimise(totalCost(2))
 
-writeln("\nPerson 2")
+writeln("Total Cost    : $", totalCost(2).sol)
+writeln("Total Utility :  ", totalUtility(2).sol)
 
-writeln("Total Cost: $", totalCost(2).sol)
-writeln("Total Utility: ", totalUtility(2).sol)
-writeln("Together : ", daysTogether.sol, " days")
+writeln("")
 
 forall(d in DAYS, c in CITIES) do
-    if (location(c, d, 2).sol > 0) then
-        writeln("Day ", d, " in ", names(c))
+    if (location(c, d, 2).sol = 1) then
+        writeln("Day ", d," in ", names(c))
     end-if
 end-do
+
+writeln("")
+writeln("~~~~~~~~Cost Breakdown~~~~~~~~")
+writeln("Melbourne Airfares : $", sum(c in CITIES) (location(c, 1, 2).sol * fromMelb(c) + location(c, numDays, 2).sol * toMelb(c)))
+writeln("Europe Airfares    : $", sum(f in CITIES, t in CITIES, d in DAYS) move(f, t, d, 2).sol * travel(f, t))
+writeln("Daily Expenses     : $", sum(c in CITIES, d in DAYS) location(c, d, 2).sol * dailyMid(c))
 
 end-model

@@ -1,0 +1,52 @@
+Person 1
+
+Maximising Utility for Person 1 ...
+Max Utility : 933.78
+
+Mimimising Cost for Person 1 ...
+Total Cost    : $4169.00
+Total Utility :  933.78
+
+Day 1 in London
+Day 2 in London
+Day 3 in London
+Day 4 in London
+Day 5 in Berlin
+Day 6 in Berlin
+Day 7 in Berlin
+Day 8 in Berlin
+Day 9 in Paris
+Day 10 in Paris
+
+~~~~~~~~Cost Breakdown~~~~~~~~
+Melbourne Airfares : $1851.00
+Europe Airfares    : $160.00
+Daily Expenses     : $2158.00
+
+Person 2
+
+Minimising days together ...
+Together : 0.00 days
+
+Maximising Utility for Person 2 ...
+Max Utility : 901.84
+
+Minimising Cost for Person 2 ...
+Total Cost    : $4132.00
+Total Utility :  899.01
+
+Day 1 in Istanbul
+Day 2 in Istanbul
+Day 3 in Berlin
+Day 4 in Berlin
+Day 5 in Paris
+Day 6 in Paris
+Day 7 in Paris
+Day 8 in Paris
+Day 9 in London
+Day 10 in London
+
+~~~~~~~~Cost Breakdown~~~~~~~~
+Melbourne Airfares : $2015.00
+Europe Airfares    : $199.00
+Daily Expenses     : $1918.00
