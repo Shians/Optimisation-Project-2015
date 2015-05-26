@@ -1,0 +1,155 @@
+%%%%% Latex document containing the section Two Travellers for the paper ``Planning an Optimal Trip to Europe''.
+
+%%%%% Date created:   27 May 2015
+%%%%% Date modified   27 May 2015
+%%%%% Created by:     John Gilbertson
+
+
+\documentclass[12pt]{article}
+
+\usepackage{latexsym,amssymb,amsmath,epsfig,amsfonts,graphicx,url,pdflscape,lipsum}
+
+\usepackage{subfigure}
+
+\setlength{\topmargin}{-10pt}
+\setlength{\headsep}{0pt}
+\setlength{\headheight}{0pt}
+\setlength{\textheight}{680pt}
+\setlength{\oddsidemargin}{0pt}
+\setlength{\evensidemargin}{0pt}
+\setlength{\textwidth}{460pt}
+\setlength{\parskip}{.30cm}
+\parskip=10pt
+
+\title{Two Travellers}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Meeting Up with Another Traveller}
+
+Often a person decides to travel to Europe because they find out that their friend is going. The aim of their trip is to spend as many days with their friend as possible. However, due to budget constraints, it might not be possible for the second person to spend their whole trip with the first person.
+
+This problem can be solved using our model. We introduce a new variable $T_{cd}$, which is a binary variable that equals 1 if the two people are together in city $c$ on day $d$. We also add an additional subscript to the location and move variables for the person they refer to [i.e., $x_{cdp}$ and $y_{ftdp}$]. When person 2 tries to maximise the number of days they are with person 1, they are maximising:
+
+\begin{equation*}
+	\sum_{c \in \mathcal{C}} \sum_{d \in \mathcal{D}} T_{cd}
+\end{equation*}
+
+To set $T_{cd}$ correctly, we need the new constraint:
+
+\begin{equation}
+	\sum_{p = 1}^{2} x_{cdp} \geq 2 \cdot T_{cd}
+\end{equation}
+
+As we are maximising $T_{cd}$, this will ensure that $T_{cd}$ is only 1 when both $x_{cd1}$ and $x_{cd2}$ are 1.
+
+To solve this problem, there are five optimisation steps required, which are:
+
+\begin{enumerate}
+	\item Maximise utility of Person 1's trip
+	\item Minimise cost of Person 1's trip given that utility
+	\item Maximise number of days where Person 1 and Person 2 are together given Person 1's trip
+	\item Maximise utility of Person 2's trip given that number of days together
+	\item Minimise cost of Person 2's trip given that utility and number of days with Person 1
+\end{enumerate}
+
+Note that the first two optimisation steps decide Person 1's trip independent of Person 2, and the last three decide Person 2's trip given that Person 1's trip has already been decided.
+
+In the interests of computational time, this model was run over 10 days with constant utility on each day, which is equal to the initial utility values in the base model. Person 1's budget is $\$5,000$ and Person 2's budget is $\$3,500$. The results are presented in the two tables below.
+
+\begin{table}[ht!]
+	\centering
+	\begin{minipage}{0.48\textwidth}
+		\centering
+		\begin{tabular}{| c || c |}
+			\hline
+			Number of Days & City \\ \hline \hline
+			4 & London \\ \hline
+			2 & Berlin \\ \hline
+			4 & Paris \\ \hline
+		\end{tabular}
+		\caption{Person 1}
+		\label{person_1_meetup}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{0.48\textwidth}
+		\centering
+		\begin{tabular}{| c || c |}
+			\hline
+			Number of Days & City \\ \hline \hline
+			2 & London \\ \hline
+			4 & Berlin \\ \hline
+			4 & Istanbul \\ \hline
+		\end{tabular}
+			\caption{Person 2 Joining Person 1}
+		\label{person_2_meetup}
+	\end{minipage}
+\end{table}
+
+Person 1 spends $\$4,355$ on their 10 day trip, which gives them a utility of 944.87. As Person 2 has a smaller budget, they are only able to spend 4 days with Person 1. The are together on days 1-2 in London and days 5-6 in Berlin. Person 2's trip costs $\$3,417$ and has a utility of 856.73.
+
+\section{Avoiding Another Traveller}
+
+While the previous section explored the problem of Person 2 wanting to spend as many days with Person 1 as possible, another problem could be that Person 2 wants to minimise the number of days that they are in the same city as Person 1.
+
+This problem can be solved using the same setup as before, except now the objective function is to minimise:
+
+\begin{equation*}
+	\sum_{c \in \mathcal{C}} \sum_{d \in \mathcal{D}} T_{cd}
+\end{equation*}
+
+As we are minimising $T_{cd}$ now the constraint in the previous section needs to be adjusted to:
+
+\begin{equation*}
+	\sum_{p = 1}^{2} x_{cdp} \leq 1 + T_{cd}
+\end{equation*}
+
+Again, there are five optimisation steps required with only step 3 being different to the previous section.
+
+\begin{enumerate}
+	\item Maximise utility of Person 1's trip
+	\item Minimise cost of Person 1's trip given that utility
+	\item \textbf{Minimise} number of days where Person 1 and Person 2 are together given Person 1's trip
+	\item Maximise utility of Person 2's trip given that number of days together
+	\item Minimise cost of Person 2's trip given that utility and number of days with Person 1
+\end{enumerate}
+
+The model was run over 10 days with constant utility, and both travellers having a budget of $\$4,200$. The results are presented in the two tables below.
+
+\begin{table}[ht!]
+	\centering
+	\begin{minipage}{0.48\textwidth}
+		\centering
+		\begin{tabular}{| c || c |}
+			\hline
+			Number of Days & City \\ \hline \hline
+			4 & London \\ \hline
+			4 & Berlin \\ \hline
+			2 & Paris \\ \hline
+		\end{tabular}
+		\caption{Person 1}
+		\label{person_1_avoid}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{0.48\textwidth}
+		\centering
+		\begin{tabular}{| c || c |}
+			\hline
+			Number of Days & City \\ \hline \hline
+			2 & Istanbul \\ \hline
+			2 & Berlin \\ \hline
+			4 & Paris \\ \hline
+			2 & London \\ \hline
+		\end{tabular}
+			\caption{Person 2 Avoiding Person 1}
+		\label{person_2_avoid}
+	\end{minipage}
+\end{table}
+
+Person 1 spends $\$4,169$ on their 10 day trip, which gives them a utility of 933.7. Person 2 is able to achieve a trip where they are never in the same city as Person 1. However, this trip costs $\$4,132$ and has a utility of only 899.01, which is $4\%$ lower than the utility of Person 1's trip. Person 2 is foregoing $4\%$ of their potential utility in order to never spend a day with Person 1.
+
+\end{document}
