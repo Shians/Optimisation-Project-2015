@@ -3,6 +3,7 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{chngcntr}
+\usepackage{subfig}
 \usepackage{lineno, algorithmic, algorithm}
 
 \counterwithin*{equation}{section}
@@ -176,9 +177,9 @@ Daily Costs & \$2979 & \$2754 \\
 \hline
 \end{tabular}	
 \end{table} \\
-Then we see that the heuristic performs reasonably well and the derived utility can be used as a lower bound in the MIP optimisation. We set a budget constraint of $\$4500$ and obtain the following solution with a utility of $1096$ at a total cost of $\$4465$.
+Then we see that the heuristic performs reasonably well and the derived utility can be used as a lower bound in the MIP optimisation. For comparison we can set the utility of the model to that of the heuristic, this gives use the following trip plan.
 \begin{table}[h]
-\caption{Trip plan from heuristic for decaying utility for 15 days}
+\caption{Trip plan with a utility fixed at 1096 for 15 days}
 \centering
 \begin{tabular}{c|c|c}
 	\hline
@@ -193,5 +194,73 @@ Then we see that the heuristic performs reasonably well and the derived utility 
 \end{tabular}
 \vspace{1mm}
 \end{table}\\
-Now coincidentally this gives the same utility as the heuristic solution but for a significantly lower cost, this gives a good indication of the strength of the model over the naive heuristic method.
+This has an utility score of 1096 but costs only $\$4465$ saving $\$636$ compared to the heuristic. So in comparison the the heuristic we find that the MIP is able to better optimise utility, but also for the same utility as the heuristic provides it is able to find a cheaper trip. We then explore some different rates of utility decay, this will affect the duration of stay in each city.
+\begin{table}[h]
+\caption{Trip plan with a decay factor for 0.95 and 0.98 for 15 days}
+\centering
+\subfloat[0.95 Decay Factor]{\begin{tabular}{c|c|c}
+	\hline
+	\rule{0pt}{2ex} Days & \# of Days & City \\
+	\hline
+	1-4 & 4 & London \\
+	5-6 & 2 & Barcelona \\
+	7-8 & 2 & Rome \\
+	9-11 & 3 & Berlin \\
+	12-15 & 4 & Paris \\
+	\hline
+\end{tabular}}
+\quad
+\subfloat[0.98 Decay Factor]{\begin{tabular}{c|c|c}
+	\hline
+	\rule{0pt}{2ex} Days & \# of Days & City \\
+	\hline
+	1-8 & 8 & London \\
+	9-10 & 2 & Berlin \\
+	11-15 & 5 & Paris \\
+	\hline
+\end{tabular}}
+\vspace{1mm}
+\end{table}\\
+So we see that as one would expect, slower rates of utility decay would lead to longer staying durations in the cities that are visited. This allows for a more natural control of stay durations than simply setting maximum and minimum days, for longer trips it may make sense to set a slower rate of utility decay. Given that the model precomputes the utilities for each day in each city, it's simple to alter the way that utility is calculated for each day, a different rate of change may be derived for each city based on statistics on average lengh of stay and more complex models may be used to define the utility without need to alter the MIP.
+
+Also of interest is how the model reacts to limited budgets, we wish to see how the traveller adapts to not being able to follow the trip with the optimised utility. To do this we add another constraint to our model that for a given budget $B$.
+\begin{equation*}
+	\sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{id} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} \mu_{ij} \cdot m_{ijd} \leq B\\
+\end{equation*}
+Recall that for a decay factor of $0.9$ we had a trip which optimised utility at 1219 and had a cost of $\$5195$. So we see how the model would react to having a budget of $\$4500$
+\begin{table}[h]
+\caption{Trip plan with decay factor of 0.9 and budget of \$4500 for 15 days}
+\centering
+\begin{tabular}{c|c|c}
+	\hline
+	\rule{0pt}{2ex} Days & \# of Days & City \\
+	\hline
+	1-2 & 2 & London \\
+	3-5 & 3 & Paris \\
+	6-9 & 4 & Berlin \\
+	10-15 & 6 & Istanbul \\
+	\hline
+\end{tabular}
+\vspace{1mm}
+\end{table}
+Now interestingly this gives an utility of 1102 with a cost of \$4341, meaning that is both cheaper than but also yields greater utility than the heuristic solution. We look at the breakdown of costs,
+\begin{table}[h]
+\caption{Comparison between optimal utility and budget constrained trips}
+\centering
+\begin{tabular}{r|c|c}
+\hline
+& MIP & Heuristic \\
+\hline
+Melbourne Travel & \$1926 & \$1755 \\
+Europe Travel & \$290 & \$291 \\
+Daily Costs & \$2979 & \$1755 \\
+\hline
+\hline
+\textbf{Total} & \$5195 & \$4341 \\
+\hline
+\textbf{Utility} & 1219 & 1102 \\
+\hline
+\end{tabular}
+\end{table} \\
+Upon inspectino of the data, it would appear that the Istanbul has a high $\frac{\text{utility}}{\text{daily cost}}$ ratio and also offers a very cheap flight back to Melbourne, then it's no surprise that in many of the budget constrained scenarios we end up with significant time spent in Istanbul.
 \end{document}

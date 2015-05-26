@@ -30,35 +30,58 @@ baseUtility = [71.017, 92.66, 100, 77.356, 85.238, 50.707, 78.964, 87.116, 67.09
 
 dailyMid = [92, 223, 298, 148, 169, 181, 126, 130, 145, 142, 165, 100, 85, 158, 134]
 
-DecayRate = 0.92
+decayRate = 0.95
+minDays = 1
+numDays = 15
 
-Utility = np.matrix([[x * DecayRate ** (n+1) for n in range(15)] for x in baseUtility])
+utility = baseUtility
 
-Trip = []*15
+Trip = []*numDays
 
 totalUtility = 0
 
 ct = c.Counter()
 
-i = 15
-while i > 0:
-	currentUtility = [Utility[n, ct[n]] for n in range(15)]
-	bestCity = currentUtility.index(max(currentUtility))
-	if i > 1
-		if ct[bestCity] > 0
-			totalUtility += currentUtility[bestCity]
-			ct[bestCity] += 1
-		elif ct[bestCity] == 0
-			totalUtility += currentUtility[bestCity]
-			ct[bestCity] += 1
+currentUtility = [round(utility[x]) for x in range(15)]
 
-			currentUtility = [Utility[n, ct[n]] for n in range(15)]
+def indexMax(x):
+	return x.index(max(x))
+
+i = numDays
+while i > 0:
+	currentUtility = [round(currentUtility[x]) for x in range(len(currentUtility))]
+	# If more than minDays remaining
+	if i >= minDays:
+		bestCity = currentUtility.index(max(currentUtility))
+		# If been to city
+		if ct[bestCity] > 0:
 			totalUtility += currentUtility[bestCity]
 			ct[bestCity] += 1
-	elif i == 1:
-		currentUtility = [Utility[n, ct[n]] for n in ct.values()]
+			i -= 1
+			currentUtility[bestCity] = round(currentUtility[bestCity] * decayRate)
+		# If going to city for the first time
+		elif ct[bestCity] == 0:
+			# Add minDays to days in city
+			for j in range(minDays): 
+				totalUtility += currentUtility[bestCity]
+				ct[bestCity] += 1
+				i -= 1
+				currentUtility[bestCity] = round(currentUtility[bestCity] * decayRate)
+	# If less than minDays remaining
+	elif i < minDays: 
+		citiesList = [x[0] for x in  ct.items()]
+		print [(x,names[x]) for x in citiesList]
+		print [currentUtility[x] for x in citiesList]
+		bestCity = citiesList[indexMax([currentUtility[x] for x in citiesList])]
+		totalUtility += currentUtility[bestCity]
+		ct[bestCity] += 1
+		i -= 1
+		currentUtility[bestCity] = round(currentUtility[bestCity] * decayRate)
 
 citiesList = [x[0] for x in  ct.items()]
+melbFlight = 0
+euFlight = 0
+euStay = 0
 totalCost = 0
 travelPlan = []
 
@@ -67,20 +90,31 @@ cheapest = costList.index(min(costList))
 travelPlan.append(citiesList[cheapest])
 del citiesList[cheapest]
 
-while len(citiesList) > 0:
-	currentCity = travelPlan[0]
-	costList = [travel[currentCity, c] for c in citiesList]
-	cheapest = costList.index(min(costList))
-	travelPlan.append(citiesList[cheapest])
-	del citiesList[cheapest]
+currentCity = travelPlan[0]
 
-totalCost += fromMelb[travelPlan[0]]
-totalCost += returnMelb[travelPlan[-1]]
+while len(citiesList) > 0:
+    costList = [travel[currentCity, c] for c in citiesList]
+    cheapest = costList.index(min(costList))
+    travelPlan.append(citiesList[cheapest])
+    euFlight += costList[cheapest]
+    currentCity = citiesList[cheapest]
+    del citiesList[cheapest]
+
+melbFlight += fromMelb[travelPlan[0]]
+melbFlight += returnMelb[travelPlan[-1]]
 for c in travelPlan:
-	totalCost += ct[c] * dailyMid[c]
+	euStay += ct[c] * dailyMid[c]
+
+print "Decay rate: %.2f" % decayRate
+print "Days %d" % numDays
+print "Minimum Days: %d" % minDays
 
 for i in travelPlan:
 	print "Go to %s for %d days." % (names[i], ct[i])
 
-print "Total Cost: $%d" % totalCost
+print ""
+print "Total Cost: $%d" % (euStay + melbFlight + euFlight)
+print "Melbourne Flights: $%d" % melbFlight
+print "Europe Flights: $%d" % euFlight
+print "Europe Daily: $%d" % euStay
 print "Total Utility: %.3f" % totalUtility
