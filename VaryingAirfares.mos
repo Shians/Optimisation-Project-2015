@@ -2,8 +2,8 @@ model ModelName
 uses "mmxprs";
 
 declarations
-    numCities = 25
-    numDays = 20
+    numCities = 15
+    numDays = 15
 
     CITIES = 1..numCities
     DAYS = 1..numDays
@@ -12,8 +12,15 @@ declarations
     location : array(CITIES, DAYS) of mpvar
     city : array(CITIES) of mpvar
     move : array(CITIES, CITIES, DAYS) of mpvar
-	
-	augment: array(CITIES, CITIES, WEEKDAYS) of integer
+
+    names: array(CITIES) of string  
+    dayNames: array(WEEKDAYS) of string
+    
+    travel : array(CITIES, CITIES) of integer
+    fromMelb : array(CITIES) of integer
+    toMelb : array(CITIES,WEEKDAYS) of integer
+    
+    augment: array(CITIES, CITIES, WEEKDAYS) of integer
 	augmentTemp1: array(CITIES, WEEKDAYS) of integer
 	augmentTemp2: array(CITIES, WEEKDAYS) of integer
 	augmentTemp3: array(CITIES, WEEKDAYS) of integer
@@ -29,20 +36,10 @@ declarations
 	augmentTemp13: array(CITIES, WEEKDAYS) of integer
 	augmentTemp14: array(CITIES, WEEKDAYS) of integer
 	augmentTemp15: array(CITIES, WEEKDAYS) of integer
-	augmentTemp16: array(CITIES, WEEKDAYS) of integer
-	augmentTemp17: array(CITIES, WEEKDAYS) of integer
-	augmentTemp18: array(CITIES, WEEKDAYS) of integer
-	augmentTemp19: array(CITIES, WEEKDAYS) of integer
-	augmentTemp20: array(CITIES, WEEKDAYS) of integer
-	augmentTemp21: array(CITIES, WEEKDAYS) of integer
-	augmentTemp22: array(CITIES, WEEKDAYS) of integer
-	augmentTemp23: array(CITIES, WEEKDAYS) of integer
-	augmentTemp24: array(CITIES, WEEKDAYS) of integer
-	augmentTemp25: array(CITIES, WEEKDAYS) of integer
-	
-    names: array(CITIES) of string  
-    travel : array(CITIES, CITIES) of integer
-    daily : array(CITIES) of integer
+    
+    dailyLow : array(CITIES) of integer
+    dailyMid : array(CITIES) of integer
+    dailyHigh : array(CITIES) of integer
 
     minDays : integer
     maxDays : integer
@@ -50,9 +47,18 @@ declarations
     totalCost : linctr
 end-declarations
 
-names:: (1..numCities)["Moscow","Paris","London","Madrid","Rome","Crete","Barcelona","Berlin","Budapest","Florence","Amsterdam","Prague","Istanbul","Vienna","Venice","Goreme","Lisbon","Nice","Reykjavik","Edinburgh","Dublin","Krakow","Copenhagen","Athens","Munich"]
+initialisations from "BaseData15.txt"
+	names as "names"
+	dayNames as "dayNames"
+ 	travel as "travel"
+ 	fromMelb as "fromMelb"
+ 	dailyLow as "dailyLow"
+ 	dailyMid as "dailyMid"
+ 	dailyHigh as "dailyHigh"
+end-initialisations
 
-initialisations from "AirfareAugmentationData25.txt"
+initialisations from "AirfareAugmentationData15.txt"
+ 	toMelb as "toMelb"
  	augmentTemp1 as "Moscow"
  	augmentTemp2 as "Paris"
  	augmentTemp3 as "London"
@@ -68,16 +74,6 @@ initialisations from "AirfareAugmentationData25.txt"
  	augmentTemp13 as "Istanbul"
  	augmentTemp14 as "Vienna"
  	augmentTemp15 as "Venice"
- 	augmentTemp16 as "Goreme"
- 	augmentTemp17 as "Lisbon"
- 	augmentTemp18 as "Nice"
- 	augmentTemp19 as "Reykjavik"
- 	augmentTemp20 as "Edinburgh"
- 	augmentTemp21 as "Dublin"
- 	augmentTemp22 as "Krakow"
- 	augmentTemp23 as "Copenhagen"
- 	augmentTemp24 as "Athens"
- 	augmentTemp25 as "Munich"
 end-initialisations
 
 forall(j in CITIES) do
@@ -97,27 +93,11 @@ forall(j in CITIES) do
 		augment(13, j, d) := augmentTemp13(j, d)
 		augment(14, j, d) := augmentTemp14(j, d)
 		augment(15, j, d) := augmentTemp15(j, d)
-		augment(16, j, d) := augmentTemp16(j, d)
-		augment(17, j, d) := augmentTemp17(j, d)
-		augment(18, j, d) := augmentTemp18(j, d)
-		augment(19, j, d) := augmentTemp19(j, d)
-		augment(20, j, d) := augmentTemp20(j, d)
-		augment(21, j, d) := augmentTemp21(j, d)
-		augment(22, j, d) := augmentTemp22(j, d)
-		augment(23, j, d) := augmentTemp23(j, d)
-		augment(24, j, d) := augmentTemp24(j, d)
-		augment(25, j, d) := augmentTemp25(j, d)
 	end-do
 end-do
 
-initialisations from "AirfareData25.txt"
- 	travel as "travel"
-end-initialisations
-
-daily :: [10, 10, 20, 30, 5, 10, 15, 20, 35, 5, 10, 15, 25, 5, 5, 10, 15, 0, 20, 15, 5, 30, 25, 20, 15]
-
 minDays := 2
-maxDays := 3
+maxDays := 4
 
 forall(c in CITIES) do
     sum (d in DAYS) location(c, d) >= minDays * city(c)
@@ -142,22 +122,30 @@ forall(f in CITIES, t in CITIES, d in DAYS) do
     move(f, t, d) is_binary
 end-do
 
-totalCost := sum(c in CITIES, d in DAYS) location(c, d) * daily(c) +
-             sum(f in CITIES, t in CITIES, d in DAYS) move(f, t, d) * ( travel(f, t) + 0.01 * augment(f, t, 1+d mod 7 ) * travel(f, t)) 
-             
-minimise(totalCost)
+forall(i in CITIES) do
+	sum(d in DAYS, j in CITIES) move(i, j, d) <= 1 + sum(d in DAYS) move(i, i ,d)
+	location(i, 1) + sum(d in DAYS, j in CITIES) move(j, i, d) <= 1 + sum(d in DAYS) move(i, i ,d)
+end-do
 
-writeln("Begin running model")
-setparam("realfmt","%1.2f")
+totalCost := sum(c in CITIES, d in DAYS) location(c, d) * dailyMid(c) +
+             sum(f in CITIES, t in CITIES, d in DAYS) move(f, t, d) * ( travel(f, t) + 0.01 * augment(f, t, 1+d mod 7) * travel(f, t)) +
+             sum(c in CITIES) (location(c, 1) * fromMelb(c) + location(c, numDays) * toMelb(c,1+numDays mod 7))
+
+minimise(totalCost)
 
 writeln("Total Cost: $", totalCost.sol)
 
 forall(d in DAYS, c in CITIES) do
     if (location(c, d).sol > 0) then
-        writeln("Day ", d, " in ", names(c))
+        writeln("Day ", d, "(", dayNames(1+d mod 7) ,") in ", names(c))
     end-if
 end-do
 
-writeln("End running model")
+writeln("")
+writeln("~~~~~~Cost Breakdown~~~~~~")
+writeln("Melbourne Airfares: $", sum(c in CITIES) (location(c, 1).sol*fromMelb(c) + location(c, numDays).sol * toMelb(c,1+numDays mod 7)))
+writeln("Europe Airfares:    $", sum(f in CITIES, t in CITIES, d in DAYS) move(f, t, d).sol * ( travel(f, t) + 0.01 * augment(f, t, 1+d mod 7) * travel(f, t)))
+writeln("Daily Expenses:     $", sum(c in CITIES, d in DAYS) location(c, d).sol * dailyMid(c))
+
 
 end-model

@@ -2,8 +2,27 @@ from PIL import Image, ImageDraw
 im = Image.open("Europe.png")
 draw = ImageDraw.Draw(im)
 
-# define the trip
-trip = ["Paris", "London", "Madrid", "Florence", "Moscow","Crete","Prague","Venice","Barcelona","Istanbul"]
+def drawline( orig, dest, airfares = [] ):
+    # colour defined by travel cost
+    if not airfares:
+        draw.line(location[orig] + location[dest], fill="hsl(0,100%,0%)", width=7)
+        colour = 120-120*(travel[orig][dest]-minTravel)/(maxTravel-minTravel)
+        draw.line(location[orig] + location[dest], fill="hsl(%d,100%%,50%%)" % (colour), width=4)
+    else:
+        draw.line(location[orig] + location[dest], fill="hsl(0,100%,0%)", width=6)
+        colour = 120-120*(airfares[dest]-min(airfares))/(max(airfares)-min(airfares))
+        draw.line(location[orig] + location[dest], fill="hsl(%d,100%%,50%%)" % (colour), width=4)
+
+def drawcircle( city, radius ):
+    # colour defined by daily cost
+    colour = 120-120*(dailyMid[city]-min(dailyMid))/(max(dailyMid)-min(dailyMid))
+    draw.ellipse((location[city][0]-(radius+4), location[city][1]-(radius+4), location[city][0]+(radius+4), location[city][1]+(radius+4)), fill="hsl(0,100%,0%)")
+    draw.ellipse((location[city][0]-(radius+2), location[city][1]-(radius+2), location[city][0]+(radius+2), location[city][1]+(radius+2)), "hsl(%d,100%%,50%%)" % (colour))
+
+##### define the trip #####
+trip = ["Venice","London","Madrid","Florence","Moscow","Crete","Prague","Barcelona","Istanbul"]
+days = [ 3, 6, 2, 3, 5, 25, 2, 3, 1 ]
+#####
 
 names = ["Moscow","Paris","London","Madrid","Rome","Crete","Barcelona","Berlin","Budapest","Florence","Amsterdam","Prague","Istanbul","Vienna","Venice"]
 
@@ -25,20 +44,31 @@ travel = [
     [167,65,17,117,84,191,97,119,110,152,75,96,177,152,0]
 ]
 
-maxPrice = 309
+fromMelb = [1390,1090,1007,1175,1082,1298,1101,1376,1399,1611,1376,1236,1140,1044,1362]
+toMelb = [803,844,875,1061,934,922,983,921,1033,1186,622,1058,748,836,1076]
+dailyMid = [92, 223, 298, 148, 169, 181, 126, 130, 145, 142, 165, 100, 85, 158, 134]
 
-location = [(900,100),(350,370),(325,260),(210,550),(900,600),(800,700),(450,550),(999,555),(222,111),(333,111),(888,333),(555,666),(111,111),(123,123),(456,456)]
+location = [(1173,104),(372,363),(314,269),(233,635),(600,588),(900,784),(366,604),(622,231),(750,409),(573,532),(430,237),(647,321),(978,617),(691,386),(598,477),(1140,759),(1155,742)]
+
+minTravel = 17
+maxTravel = 309
+
+# draw line from melbourne to first city
+dest = names.index(trip[0])
+drawline( 15, dest, fromMelb )
 
 for i in range(len(trip)-1):
     orig = names.index(trip[i])
     dest = names.index(trip[i+1])
+    drawline( orig, dest )
+    drawcircle( orig, days[i] )
 
-    # draw a black line for the border
-    draw.line(location[orig] + location[dest], fill="hsl(0,100%,0%)", width=6)
-    
-    # draw a coloured line
-    colour = 120-120*travel[orig][dest]/maxPrice
-    draw.line(location[orig] + location[dest], fill="hsl(%d,100%%,50%%)" % (colour), width=4)
-    
+# draw line from last city to melbourne
+drawline( 16, dest, toMelb )
+
+# draw a circle on the last city
+drawcircle( dest, days[len(trip)-1] )
+
+
 im.save("Trip.png")
 
