@@ -34,13 +34,13 @@
 \clearpage
 \vspace*{3cm}
 \begin{center}
-  {\large \bf Planning an Optimal Trip to Europe}\\[+10pt]
+  {\LARGE \bf Optimal European Trip}\\[+10pt]
   John Gilbertson, Shian Su, Ria Szeredi and Kenneth Young\\[+10pt]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   {\large \bf Abstract}\\[+10pt]
-  \parbox{13cm}{\lipsum[3]}
+  \parbox{13cm}{Planning a trip to Europe is not a trivial task. It bears similarity to the Travelling Salesperson and Knapsack Problems. We formulate an integer linear program to optimise travel costs and enjoyment. The implementation of the model is assisted by greedy heuristics to improve computational time. Our model is extended to investigate several real-world scenarios. Methods to overcome nonlinearity are also explored. This model can be used to assist travel agencies or any prospective traveller planning a trip to Europe. It has the potential to be built into a website where the traveller can freely plan their dream European holiday.}
 \\[+20pt]
 \parbox{13cm}{
 Keywords: personalised tourist guide, linear programming, transportation planning, trip generation, decision making}
@@ -61,15 +61,15 @@ Keywords: personalised tourist guide, linear programming, transportation plannin
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Planning a trip to Europe is not a trivial task as there are many factors which must be considered. Comparing the cost of airfares, the cost of hotels, deciding on which places to visit and the order in which to visit them; just to list a few. Prospective travellers seek the help of travel agencies to assist them in finding their optimal trip. However, using travel agencies comes with a fee and many are associated with certain suppliers. Hence the results they provide their customers are biased and not necessarily the optimal solution.
+Planning a trip to Europe is not a trivial task as there are many factors which must be considered. For example, comparing the cost of airfares, the cost of hotels, deciding on which places to visit and the order in which to visit them. Prospective travellers seek the help of travel agencies to assist them in finding their optimal trip. However, using travel agencies comes with a fee and many are associated with certain suppliers. Hence the results they provide their customers are biased and not necessarily the optimal solution.
 
-With this project we aimed to formulate and create a linear program which optimises a trip to Europe. What classifies the optimality of the trip will be defined by the traveller; whether it is minimal cost, maximal enjoyment or a combination of the two. This LP could be built into a website where travellers can input their requirements, such as maximum trip length, longest and shortest time spent in any one city and a budget constraint. The LP seeks only optimality and so would have no bias towards particular airlines or hotels; a feature which is certainly be appealing to any traveller. One who has already planned their trip could use the website to estimate costs or even find a cheaper or more enjoyable configuration.
+With this project we aim to formulate and create a linear program which optimises a trip to Europe. What classifies the optimality of the trip will be defined by the traveller; whether it is minimal cost, maximal enjoyment or a combination of the two. This LP could be built into a website where travellers can input their requirements, such as maximum trip length, longest and shortest time spent in any one city and a budget constraint. The LP seeks only optimality and so would have no bias towards particular airlines or hotels; a feature which would certainly be appealing to any traveller. One who has already planned their trip could use the website to estimate costs or even find a cheaper or more enjoyable configuration.
 
-To model this program we require data on the daily cost of living for each city, the cost of airfares between all cities and the daily utility of staying at each city. This is delved into further in the next section. The first models we consider are greedy heuristics and from their output we motivate the use of a formal linear programming approach. Two mixed-integer linear programs are then proposed, one simply seeking the minimal cost and one seeking the minimal cost given that enjoyment must first be maximised.
+To model this program we require data on the daily cost of living for each city, the cost of airfares between all cities and the daily utility of staying at each city. The first models we consider are greedy heuristics and from their output we motivate the use of a formal linear programming approach. Two integer linear programs are then proposed: one simply seeking the minimal cost and the other seeking the minimal cost given that enjoyment must first be maximised.
 
-The model is extended in 4 ways to increase our its applicability in real-world scenarios. We consider travellers who have an affinity for particular acitvities, such as going to the beach or visiting museums, and use our program to maximise their enjoyment. The model is also extended to handle trips involving multiple people. One person may want to join/avoid a friend/enemy who has already planned their trip to Europe. A program formulation which can plan a trip involving many people at once is also proposed. This LP ensures that everyone is always with at least one other person at anytime and each person's enjoyment is maximised.
+The model is extended in various ways to increase its applicability in real-world scenarios. We consider travellers who have an affinity for particular acitvities, such as going to the beach or visiting museums, and use our program to maximise their enjoyment. The model is also extended to handle trips involving multiple people. One person may want to join/avoid a friend/enemy who has already planned their trip to Europe. A program formulation which can plan a trip involving many people at once is also proposed. This LP can be used to ensure that everyone is always with at least one other person and the total enjoyment is maximised.
 
-Finally, we present our concluding remarks on the project and give recommendations to possible further work which could be done and alternate approaches to the problem.
+Finally, we present our concluding remarks on the project and give recommendations to possible further work which could be done.
 
 
 
@@ -82,75 +82,75 @@ Finally, we present our concluding remarks on the project and give recommendatio
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-For the sake of brevity, we shall only provide data sets for the case of five cities here. This will be enough to demonstrate how we stored and used our data. The full data set can be found in the appendicies. All values are in Australian Dollars.
+In this section we present data on the airfares between all cities, the daily living expenses of any city, the cost of flights to and from Melbourne for any city and the base utility of staying at a city.
 
-Our model will need to know the flight costs between all the cities. Initially we assumed that flights were uniform across all days of the trip and all times of each day. Our flight data was sourced from \url{momondo.com.au} \cite{momondo}. We searched for only the cheapest flights between any two cities which imposed more assumptions on our problem.
+For the sake of brevity, we shall only provide data sets for the case of five cities here. This will be enough to demonstrate how we stored and used our data. The full data set can be found in the appendix. All values are in Australian Dollars.
 
-\begin{table}[h]
+Our model will need to know the flight costs between all the cities. Initially we assume that flights are uniform across all days of the trip and at all times of each day. Our flight data is sourced from \url{momondo.com.au} \cite{momondo}. We select only the cheapest flights between any two cities.
+
+\begin{table}[h!]
+\centering
+\vspace{1mm}
+\begin{tabular}{c|c|c|c|c|c}
+\hline
+\rule{0pt}{2ex} \textbf{City}  & \textbf{Moscow} & \textbf{Paris} & \textbf{London} & \textbf{Madrid} & \textbf{Rome} \\
+\hline
+\rule{0pt}{2ex}\textbf{Moscow} & 0 & 146 & 126 & 202 & 146 \\
+\textbf{Paris} & 227 & 0 & 60 & 143 & 93 \\
+\textbf{London} & 213 & 82 & 0 & 249 & 160 \\
+\textbf{Madrid} & 188 & 86 & 136 & 0 & 144 \\
+\textbf{Rome} & 223 & 80 & 125 & 146 & 0 \\\hline
+\end{tabular}
 \caption{Airfares between Five Cities}
+\end{table}
+
+For simplicity we assume that a person can fly directly between all cities, even though in some cases the cheapest flight is not direct. 
+
+Aside from the cost of airfares, the cost of living is another contributor to our model's objective value. All our daily living expenses data are sourced from \url{budgetyourtrip.com} \cite{budget}. To simplify the computation of our daily costs, we assume that there is no reduction in cost if a traveller books accommodation at a single hotel over multiple nights.
+
+\begin{table}[h!]
 \centering
 \vspace{1mm}
 \begin{tabular}{c|c|c|c|c|c}
 \hline
-\rule{0pt}{2ex}  & Moscow & Paris & London & Madrid & Rome \\
+\rule{0pt}{2ex} \textbf{City}  & \textbf{Moscow} & \textbf{Paris} & \textbf{London} & \textbf{Madrid} & \textbf{Rome} \\
 \hline
-\rule{0pt}{2ex}Moscow & 0 & 146 & 126 & 202 & 146 \\
-Paris & 227 & 0 & 60 & 143 & 93 \\
-London & 213 & 82 & 0 & 249 & 160 \\
-Madrid & 188 & 86 & 136 & 0 & 144 \\
-Rome & 223 & 80 & 125 & 146 & 0 \\
-
+\rule{0pt}{2ex}\textbf{Low} & 36 & 81 & 110 & 57 & 68 \\
+\textbf{Mid} & 92 & 223 & 298 & 148 & 169 \\
+\textbf{High} & 233 & 657 & 845 & 393 & 423 \\\hline
 \end{tabular}
-\end{table}
-
-For simplicity we assumed that you can fly directly between all cities, even though in some cases the cheapest flight was not direct. This assumption is vaild as we are not attempting to find the optimal route around Europe, but instead minimise the overall cost of the trip or maximise the enjoyment gained. 
-
-Aside from the cost of airfares, the cost of living is another contributor to our model's objective value. All our daily living expenses data were sourced from \url{budgetyourtrip.com} \cite{budget}. To simplify the computation of our daily costs, we have assumed that there is no reduction in cost if a traveller books accommodation at a single hotel over multiple nights.
-
-\begin{table}[h]
 \caption{Daily Costs of Five Cities}
+\end{table}
+
+The last contribution to our model's objective value comes from the flights from and to Melbourne at the begining and end of the trip. We assume that the traveller buys two one-way tickets for these flights as it results in a simpler model.  This flight data is again sourced from \url{momondo.com.au} \cite{momondo}.
+
+\begin{table}[h!]
 \centering
 \vspace{1mm}
 \begin{tabular}{c|c|c|c|c|c}
 \hline
-\rule{0pt}{2ex}  & Moscow & Paris & London & Madrid & Rome \\
+\rule{0pt}{2ex} \textbf{City} & \textbf{Moscow} & \textbf{Paris }& \textbf{London} & \textbf{Madrid} & \textbf{Rome} \\
 \hline
-\rule{0pt}{2ex}Low & 36 & 81 & 110 & 57 & 68 \\
-Mid & 92 & 223 & 298 & 148 & 169 \\
-High & 233 & 657 & 845 & 393 & 423 \\
-
+\rule{0pt}{2ex} \textbf{To Melbourne} & 1390 & 1090 & 1007 & 1175 & 1082 \\
+\rule{0pt}{2ex} \textbf{From Melbourne} & 803 & 844 & 875 & 1061 & 934 \\\hline
 \end{tabular}
-\end{table}
-
-The last contribution to our model's objective value came from the flights from and to Melbourne at the begining and end of the trip. We assumed that the traveller bought two one-way tickets for these flights, as if we had instead allowed for the possibility of a return ticket then our model would have become more constrained. Specifically, the first and last days of the trip would have had to be equal.  This flight data was again sourced from \url{momondo.com.au} \cite{momondo}.
-
-\begin{table}[h]
 \caption{Melbourne Flight Costs of Five Cities}
-\centering
-\vspace{1mm}
-\begin{tabular}{c|c|c|c|c|c}
-\hline
-\rule{0pt}{2ex} City & Moscow & Paris & London & Madrid & Rome \\
-\hline
-\rule{0pt}{2ex} To Melbourne & 1390 & 1090 & 1007 & 1175 & 1082 \\
-\rule{0pt}{2ex} From Melbourne & 803 & 844 & 875 & 1061 & 934 \\
-\end{tabular}
 \end{table}
 
-We assumed that all flights occur in the morning. We make this simplification as if the flight was at midday then the daily cost would have contributions from the city the traveller was leaving and the city they are going to. Further to this, we assumed that the return flight to Melbourne occurred on the morning after the last day of the trip. This was again to simplify the calculation of daily costs. If the traveller leaves a city in the early morning then we assume that there is no living expenses for that day.
+We assume that all flights occur in the morning. We make this simplification so we do not have to calculate fractional daily costs. Further to this, we assume that the return flight to Melbourne occurrs on the morning after the last day of the trip. This is again to simplify the calculation of daily costs. If the traveller leaves a city in the early morning then we assume that there is no living expenses for that day.
 
-\begin{table}[h]
-\caption{Base Utilities of Five Cities}
+\begin{table}[h!]
 \centering
 \vspace{1mm}
 \begin{tabular}{c|c|c|c|c}
 \hline
-\rule{0pt}{2ex} Moscow & Paris & London & Madrid & Rome \\
+\rule{0pt}{2ex} \textbf{Moscow} & \textbf{Paris} & \textbf{London} & \textbf{Madrid} & \textbf{Rome} \\
 \hline
-\rule{0pt}{2ex} 71 & 93 & 100 & 77 & 85 \\
+\rule{0pt}{2ex} 71 & 93 & 100 & 77 & 85 \\\hline
 \end{tabular}
+\caption{Base Utilities of Five Cities}
 \end{table}
-The true utility of staying in a city is highly subjective and very difficult to measure. So for a basic model our utility is based on the overall popularity of a city as measured by a "bednights" statistic, which measures the number of nights tourists stayed in a given city. Because the difference in the raw data was quite large, the fifth root was taken such that all values were of similar magnitude and then rescaled to be a rounded percentage of the highest utility city. This reflects the behaviour of a naive traveller who makes their decisions on general popularity, later we explore specific preferences.
+The true utility of staying in a city is highly subjective and very difficult to measure. For a basic model our utility is based on the overall popularity of a city as measured by a ``bednights" statistic \cite{euro}, which measures the number of nights tourists stayed in a given city. Because the difference in the raw data was quite large, the fifth root was taken such that all values were of similar magnitude and then rescaled to be a percentages of the highest utility city. This reflects the behaviour of a naive traveller who makes their decisions on general popularity. In Section 4.2 we explore specific preferences.
 
 \pagebreak
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -167,19 +167,19 @@ This problem has many similarities with the Travelling Salesman Problem (TSP), w
 
 \subsubsection{Cheap Heuristic}
 
-The cheap heuristic attempts to find the cheapest 15 day trip with 15 possible cities. For each city, the heuristic calculates the cost of travelling from Melbourne to that city and remaining in that city for maxDays. The algorithm then chooses the city that has the minimum cost. In the same way, cities are added recursively until there are no days left. The traveller then flies back to Melbourne from their final city.
+The cheap heuristic attempts to find the cheapest 15 day trip with 15 possible cities. Let $\alpha$ denote the maximum number of days allowed in any one city. For each city, the heuristic calculates the cost of travelling from Melbourne to that city and remaining in that city for $\alpha$ days. The algorithm then chooses the city that has the minimum cost and requires the traveller to remain there for $\alpha$ days. In the same way, cities are added iteratively until there are no days left. The traveller then flies back to Melbourne from their final city.
 
 \begin{algorithm}[ht!]
 \caption{Cheap Heuristic}
 \begin{algorithmic}
 \STATE Begin in Melbourne
 \FOR {each city $i$}
-\STATE $\text{cost}(i) = \text{costFromMelb}(i) + \text{maxDays} \times \text{costDaily}(i)$
+\STATE $\text{cost}(i) = \text{costFromMelb}(i) + \alpha \times \text{costDaily}(i)$
 \ENDFOR
-\STATE Go to city $i$ with the minimum cost and stay for maxDays
-\STATE $\text{daysLeft} = \text{days} - \text{maxDays}$
+\STATE Go to city $i$ with the minimum cost and stay for $\alpha$ days
+\STATE $\text{daysLeft} = \text{days} - \alpha$
 \WHILE {$\text{daysLeft} > 0$}
-\STATE $step = \min (\text{maxDays}, \text{daysLeft})$
+\STATE $step = \min (\alpha, \text{daysLeft})$
 \FOR {each city $i$ not yet visited}
 \STATE $\text{cost}(i) = \text{costTravel}(\text{currentCity}, i) + step \times \text{costDaily}(i)$
 \ENDFOR
@@ -190,77 +190,106 @@ The cheap heuristic attempts to find the cheapest 15 day trip with 15 possible c
 \end{algorithmic}
 \end{algorithm}
 
-Using maxDays $= 4$ and the medium daily costs defined in Section DATA, the output of this heuristic is shown in Table~\ref{cheap_heuristic_output}. The heuristic solution is to spend the first 4 days in Istanbul, then fly to Moscow for 4 days, followed by Prague for 4 days and finally Venice for 3 days. The cost of this trip is $\$4,060$ including Melbourne flights, flights within Europe and daily costs. The utility of this trip is $1,102$.
+Using $\alpha= 4$ and the medium daily costs defined in Section 2, the output of this heuristic is shown in Table~\ref{cheap_heuristic_output}. The heuristic solution is to spend the first 4 days in Istanbul, then fly to Moscow for 4 days, followed by Prague for 4 days and finally Venice for 3 days. The cost of this trip is \$4,060 including Melbourne flights, flights within Europe and daily costs. The utility of this trip is 1,102.
 
 \begin{table}[ht!]
 	\centering
-	\begin{tabular}{| c || c |}
+	\begin{tabular}{ c | c | c }
 		\hline
-		Number of Days & City \\ \hline \hline
-		4 & Istanbul \\ \hline
-		4 & Moscow \\ \hline
-		4 & Prague \\ \hline
-		3 & Venice \\ \hline
+		\textbf{Days} & \textbf{\# of Days} & \textbf{City} \\ \hline
+		1-4 & 4 & Istanbul \\
+		5-8 & 4 & Moscow \\
+		9-12 & 4 & Prague \\
+		13-15 & 3 & Venice \\ \hline
+		\multicolumn{2}{c |}{\textbf{Total Cost ($\$$)}} & 4060 \\ \hline
+		\multicolumn{2}{c |}{\textbf{Total Utility}} & 1102 \\ \hline
 	\end{tabular}
-	\caption{Cheap Heuristic Output}
+	\caption{Cheap Heuristic}
 	\label{cheap_heuristic_output}
 \end{table}
 
 \subsubsection{Maximum Utility Heuristic}
 
-The maximum utility heuristic attempts to find the 15 day trip with the maximum utility regardless of cost. At each iteration, the algorithm chooses the city with the maximum utility from the set of cities containing the unvisited cities and the current city. After spending a day in any city, the utility of staying another day in that city is multiplied by a decay factor.
+The maximum utility heuristic attempts to find the 15 day trip with the maximum utility regardless of cost. At each iteration, the algorithm chooses the city with the maximum utility from the set of all cities. The utility of staying another day in the chosen city is multiplied by a decay factor. This will be further explained in Section 3.2.2. This heuristic is strikingly similar to the knapsack algorithm.
 
 \begin{algorithm}[ht!]
 \caption{Maximum Utility Heuristic}
 \begin{algorithmic}
 \STATE Begin in Melbourne
 \FOR {$j = 1, \ldots,$ days}
-\STATE Find city $i$ with the maximum utility in the set $\{ \text{unvisited cities} \} \bigcup \{ \text{current city} \}$
-\STATE Go to city $i$
+\STATE Go to city $i \in \mathcal{C}$ with the maximum utility
 \STATE Reduce the utility of the current city by the decay factor
 \ENDFOR
+\STATE Sort cities in alphabetical order
 \STATE Return to Melbourne from final city
 \end{algorithmic}
 \end{algorithm}
+We sort the cities in alphabetical order so that we do not visit a city twice. The order is arbitrary.
 
-Using a decay factor of 0.98 and the medium daily costs defined in Section DATA, the output of this heuristic is shown in Table~\ref{max_utility_heuristic_output}. The utility of this trip is $1,330$, which is $21\%$ greater than the utility of the trip found using the cheap heuristic. The cost of this trip is $\$5,450$, which is $34\%$ ($\$1,390$) greater than the cheap heuristic.
+Using a decay factor of 0.9 and the medium daily costs defined in Section 2, the output of this heuristic is shown in Table~\ref{max_utility_heuristic_output}. The utility of this trip is $1,238$, which is $12\%$ greater than the utility of the trip found using the cheap heuristic. The cost of this trip is $\$5,636$, which is $\$1,576$ greater than the cheap heuristic.
 
 \begin{table}[ht!]
 	\centering
-	\begin{tabular}{| c || c |}
+	\begin{tabular}{c | c | c }
 		\hline
-		Number of Days & City \\ \hline \hline
-		4 & London \\ \hline
-		4 & Paris \\ \hline
-		2 & Berlin \\ \hline
-		4 & Rome \\ \hline
-		1 & Barcelona \\ \hline
+		\textbf{Days} & \textbf{\# of Days} & \textbf{City} \\ \hline
+		1 & 1 & Barcelona \\ 
+		2-3 & 2 & Berlin \\ 
+		4 & 1 & Istanbul \\ 
+		5-7 & 3 & London \\ 
+		8 & 1 & Madrid \\ 
+		9-10 & 2 & Paris \\ 
+		11 & 1 & Prague \\ 
+		12-13 & 2 & Rome \\ 
+		14 & 1 & Venice \\ 
+		15 & 1 & Vienna \\ \hline
+		\multicolumn{2}{c |}{\textbf{Total Cost ($\$$)}} & 5636 \\ \hline
+		\multicolumn{2}{c |}{\textbf{Total Utility}} & 1238 \\ \hline
 	\end{tabular}
-	\caption{Maximum Utility Heuristic Output}
+	\caption{Maximum Utility Heuristic}
 	\label{max_utility_heuristic_output}
 \end{table}
+
  
 \pagebreak
-\subsection{Mixed-Integer Linear Program}
+\subsection{Integer Linear Program (ILP)}
 
-\subsubsection{Base model}
-\textbf{Variables} \\
+\subsubsection{Base Model}
+In this section we introduced our base model which minimises the cost of a trip to Europe.
+
+\noindent\textbf{Variables} \\
 $x_{id}$: [binary] equal to 1 if the traveller is in city $i$ on day $d$. \\ 	% location variable
 $y_{i}$: [binary] equal to 1 if the traveller ever visits city $i$. \\		% city variable
-$m_{ijd}$: [binary] equal to 1 if the traveller moves from city $i$ to city $j$ on day $d$. \\	% move variable
-
+$m_{ijd}$: [binary] equal to 1 if the traveller moves from city $i$ to city $j$ on day $d$. \vspace{5mm}\\	% move variable
 \textbf{Parameters}\\
 $D$: the total number of days. \\
 $\mathcal{C}$: the set of cities available for visiting. \\
 $\mu_{ij}$: the cost to move from city $i$ to city $j$. \\
-$\lambda_{i}$: the cost to move from melbourne to city $i$. \\
-$\nu_{i}$: the cost to move from city $i$ to melbourne. \\
+$\lambda_{i}$: the cost to move from Melbourne to city $i$. \\
+$\nu_{i}$: the cost to move from city $i$ to Melbourne. \\
+$\delta_{i}$: the daily cost of city $i$. \\
 $\alpha$: the minimum number of days allowed in a city. \\
 $\omega$: the maximum number of days allowed in a city. \\
 
-The components of the objective function are the daily expenses, travel costs between cities, and the travel costs to and from Melbourne.\\
+\begin{equation*}
+\text{Min } \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{id} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} \mu_{ij} \cdot m_{ijd} + \sum_{i \in \mathcal{C}} \left( x_{i,1} \cdot \lambda_{i} + x_{i,D} \cdot \nu_{i} \right)\\
+\end{equation*}
+\begin{align}
+\text{s.t ~~~~~~~~~~~}
+\sum_{d=1}^{D} x_{id} & \geq \alpha \cdot y_{i} & \forall i \in \mathcal{C} \label{BM:minDays}\\
+\sum_{d=1}^{D} x_{id} & \leq \omega \cdot y_{i} &  \forall i \in \mathcal{C} \label{BM:maxDays}\\
+x_{id} + x_{j(d+1)} & \leq 1 + m_{ijd} & \forall i,j \in \mathcal{C}, d = 1..(D-1) \label{BM:move}\\
+\sum_{i \in \mathcal{C}} x_{id} &= 1 & d = 1..D \label{BM:city} \\
+\sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} m_{ijd} &= 1 & d = 1..(D-1) \label{BM:moveOnce}\\
+\sum_{d=1}^{D-1} \sum_{j \in \mathcal{C}} m_{ijd} &\leq 1 + \sum_{d=1}^{D-1} m_{iid} & \forall i \in \mathcal{C} \label{BM:leaveOnce}\\
+x_{j1} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} m_{ijd} &\leq 1 + \sum_{d=1}^{D-1} m_{jjd} & \forall j \in \mathcal{C}\label{BM:arriveOnce}\\
+x_{id}, y_{i}, m_{ijd} & \in \{0,1\} & \forall i, j \in \mathcal{C}, d = 1..D \label{BM:8}
+\end{align}
 
+\newpage
+The components of the objective function are the daily expenses, travel costs between cities, and the travel costs to and from Melbourne.\vspace{5mm}\\
 \begin{tabular}{c | p{14cm} }
+\hline
 	\textbf{Constraint} & \textbf{Explanation} \\
 	\hline
 	\ref{BM:minDays} & If the traveller visits city $i$, he must stay there for at least the minimum number of days allowed. \\
@@ -273,26 +302,14 @@ The components of the objective function are the daily expenses, travel costs be
 	\hline
 	\ref{BM:moveOnce} & On any given day, the traveller must move exactly once (including a move to the same city). \\
 	\hline
-	\ref{BM:leaveOnce}, \ref{BM:arriveOnce} & The traveller cannot return to a city that has already been visited. \\
+	\ref{BM:leaveOnce} & The traveller can only leave a visited city once. \\
+	\hline
+	\ref{BM:arriveOnce} & The traveller can only enter a visited city once. This together with constraint 6 ensures the traveller does not return to an already visited city. \\\hline
 \end{tabular}\\
 
-\begin{equation*}
-\text{Min } \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{id} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} \mu_{ij} \cdot m_{ijd} + \sum_{i \in \mathcal{C}} \left( x_{i,1} \cdot \lambda_{i} + x_{i,D} \cdot \nu_{i} \right)\\
-\end{equation*}
-\begin{align}
-\text{s.t.~~~~~~~~} \sum_{d=1}^{D} x_{id} & \geq \alpha \cdot y_{i} & \forall i \in \mathcal{C} \label{BM:minDays}\\
-\sum_{d=1}^{D} x_{id} & \leq \omega \cdot y_{i} &  \forall i \in \mathcal{C} \label{BM:maxDays}\\
-x_{id} + x_{j(d+1)} & \leq 1 + m_{ijd} & \forall i,j \in \mathcal{C}, d = 1..D-1 \label{BM:move}\\
-\sum_{i \in \mathcal{C}} x_{id} &= 1 & d = 1..D \label{BM:city} \\
-\sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} m_{ijd} &= 1 & d = 1..D-1 \label{BM:moveOnce}\\
-\sum_{d=1}^{D} \sum_{j \in \mathcal{C}} m_{ijd} &\leq 1 + \sum_{d=1}^{D} m_{iid} & \forall i \in \mathcal{C} \label{BM:leaveOnce}\\
-x_{j1} + \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} m_{ijd} &\leq 1 + \sum_{d=1}^{D} m_{jjd} & \forall j \in \mathcal{C}\label{BM:arriveOnce}\\
-x_{id}, y_{i}, m_{ijd} & \in \{0,1\} & \forall i, j \in \mathcal{C}, d = 1..D \label{BM:8}
-\end{align}
+The base model is a simple minimisation of cost during a trip through Europe. It is clear that the optimal solution would be to simply fly to the cheapest city and stay there for the duration of the planned trip. Thus, we impose constraints \ref{BM:minDays} and \ref{BM:maxDays} to set limits on how long we can stay in a particular city.
 
-
-
-There a number of simple extensions we can add to the base model. Suppose the traveller wishes to spend a total of 4 days in Paris (city 2). We would require the constraint:
+There are a number of simple extensions we can add to the base model. Suppose the traveller wishes to spend a total of 4 days in Paris (city 2). We would require the constraint:
 \begin{equation*}
 \sum_{d=1}^{D} x_{2,d} = 4
 \end{equation*}
@@ -302,200 +319,112 @@ If the traveller had a flight already booked from London (city 3) to Berlin (cit
 m_{3,8,5} = 1
 \end{equation*}
 
-Similarly, suppose there was a soccer match in Madrid (city 4) on day 8 that the traveller wanted to go to. Then we would add:
+Similarly, suppose there was a football match in Madrid (city 4) on day 8 that the traveller wanted to go to. Then we would add:
 \begin{equation*}
 x_{4,8} = 1
 \end{equation*}
 
-The base model is a simple minimisation of cost during a trip through europe. It's clear that the optimal solution would be to simply fly to the cheapest city and stay there for the duration of the planned trip. So we set some limits on how long we can stay in a particular city.
+If the traveller does not want to visit Istanbul (city 13) then we can add the following constraint:
+\begin{equation*}
+y_{13} =0
+\end{equation*}
 
 
 \newpage
 \subsubsection{Decaying Enjoyment}
-Assuming that the enjoyment of staying in a city decays with the number of days stayed. Note that in its natural form this does not yield a problem that is linear in our main decision variable $x_{id}$. Let $u$ be some base level utility and $r$ be some decay factor now let $N_i=\sum_{j=1}^D x_{ij}$ be the total number of days we stay in city. To find out how much utility we would obtain for a given city we would need to compute the sum
+We explore the assumption that the enjoyment of staying in a city decays with the number of days stayed. In its natural form this does not yield a problem that is linear in our main decision variable $x_{id}$.
+
+Let $u$ be some base level utility and $r$ be some decay factor. Let $N_i=\sum_{d=1}^D x_{id}$ be the total number of days we stay in city $i$. To find out how much utility we would obtain for a given city we would need to compute the sum
 \begin{equation*}
-	\sum\limits_{j=1}^{N_{i}} u \cdot r^{j-1}, \quad i \in \mathcal{C}.
+	\sum\limits_{d=1}^{N_{i}} u \cdot r^{d-1}, \quad i \in \mathcal{C}.
 \end{equation*}
-This is a basic geometric sum with closed form $u \cdot \frac{1-r^{N_i}}{1-r}$ which is clearly not linear in $x_{ij}$. We can however linearise this problem by precomputing the utility values as a matrix for each day in each city. This is only possible because we are working in discrete time steps. With this linearisation method in mind, we add the following to the model.
+This is a basic geometric sum with closed form $u \cdot \frac{1-r^{N_i}}{1-r}$ which is clearly not linear in $x_{id}$. We can however linearise this problem by precomputing the utility values as a matrix for each day in each city. This is only possible because we are working in discrete time steps. With this linearisation method in mind, we add the following to the model.
 
 \textbf{Variables}\\
-$s_{ij}$: [binary] equal to 1 if traveller stays in city i for j days.\\
+$s_{id}$: [binary] equal to 1 if traveller stays in city $i$ for $d$ days.\\
 
 \textbf{Parameters} \\
-$u_{ij}$: The total utility of staying in city i for j days.\\
+$u_{id}$: The total utility of staying in city $i$ for $d$ days.\\
 
-Then we no longer need (2) since we hope that the traveller naturally leaves the city once the marginal enjoyment is low enough but we retain (1) since it's still reasonable to set a length of minimum stay.
+We now no longer need constraint (2) from the base model since we expect that the traveller naturally leaves the city once the marginal enjoyment is low enough. We retain constraint (1) since it is still reasonable to set a length of minimum stay.
 
-Then the new model is 
+The new objective function is 
 \begin{equation*}
-\text{Max } \sum_{i \in \mathcal{C}} \sum_{j=1}^{D} s_{ij} \cdot u_{ij}\\
+\text{Max } \sum_{i \in \mathcal{C}} \sum_{d=1}^{D} s_{id} \cdot u_{id}\\
 \end{equation*}
+with additional constraints
 \begin{align}
-\text{s.t.~~~~~~~~}
-\sum_{d=1}^{D} x_{id} & \geq \alpha \cdot y_{i} & \forall i \in \mathcal{C}\\
-\sum_{j=1}^{D} s_{ij} &= y_{i} & \forall i \in \mathcal{C}\\
-s_{ij} \cdot j &\leq \sum_{d=1}^{D} x_{id} & \forall i \in \mathcal{C}, j=1...D\\
-x_{id} + x_{j(d+1)} & \leq 1 + m_{ijd} & \forall i,j \in \mathcal{C}, d = 1..D-1 \\
-\sum_{i \in \mathcal{C}} x_{id} &= 1 & d = 1..D \\
-\sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} m_{ijd} &= 1 & d = 1..D-1 \\
-\sum_{d=1}^{D} \sum_{j \in \mathcal{C}} m_{ijd} &\leq 1 + \sum_{d=1}^{D} m_{iid} & \forall i \in \mathcal{C} \\
-x_{j1} + \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} m_{ijd} &\leq 1 + \sum_{d=1}^{D} m_{jjd} & \forall j \in \mathcal{C}\\
-x_{id}, y_{i}, m_{ijd} & \in \{0,1\} & \forall i, j \in \mathcal{C}, d = 1..D
+\sum_{d=1}^{D} s_{id} &= y_{i} & \forall i \in \mathcal{C}\label{BM:stay}\\
+s_{ig} \cdot g &\leq \sum_{d=1}^{D} x_{id} & \forall i \in \mathcal{C}, g=1...D\label{BM:stay2}
 \end{align}\\
-With this we find the optimal enjoyment possible for the traveller irrespective of cost, then we optimise again to minimise cost at the optimal enjoyment.
-\begin{equation*}
-\text{Min } \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{id} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} \mu_{ij} \cdot m_{ijd}\\
-\end{equation*}
-\begin{align*}
-\text{s.t.~~~~~~~~} & \\
-\text{(1)-(9) from previous} &\text{ model is statisfied and} \\
-\sum_{i \in \mathcal{C}} \sum_{j=1}^{D} s_{ij} * u_{ij} &= (\sum_{i \in \mathcal{C}} \sum_{j=1}^{D} s_{ij} * u_{ij})_{optimal}
-\end{align*}\\
-We look at the new constraints introduced.\\
-\vspace{5mm}\\
+\begin{center}
 \begin{tabular}{c|p{11cm}}
 \hline
-Constraint &  Explanation \\
+\textbf{Constraint} &  \textbf{Explanation} \\
 \hline
-$\sum_{j=1}^{D} s_{ij} = y_{i}$ & This ensures that only one stay duration is valid for each city, also that the stay durations are zero if a city is not visited. \\
-c & d \\
+\ref{BM:stay} & This ensures that if $y_{i}$ =1 then one $s_{id}$ is equal to 1. \\
 \hline
-$s_{ij} \cdot j \leq \sum_{d=1}^{D} x_{id}$ & When trying to maximise utility the program will try to set j to the highest value it can for each i because $u_{ij}$ is set up as the cumulative utility of staying in city $i$ for $j$ days. As a result this sets $s_{ij}$ 1 if we stay in city $i$ for $j$ days. \\
+\ref{BM:stay2} & This ensures $s_{id}$ = 1 if we stay in city $i$ for $d$ days. \\\hline
 \end{tabular}
-\vspace{5mm}\\
-% \begin{tabular}{c|c}
-% Constraint &  Explanation \\
-% $\sum_{j=1}^{D} s_{ij} = y_{i}$ & This ensures that only one stay duration is valid for each city, also that the stay durations are zero if a city is not visited.
-% $s_{ij} \cdot j \leq \sum_{d=1}^{D} x_{id}$ & When trying to maximise utility the program will try to set j to the highest value it can for each i because $u_{ij}$ is set up as the cumulative utility of staying in city $i$ for $j$ days. As a result this sets $s_{ij}$ 1 if we stay in city $i$ for $j$ days.\\
-% \end{tabular}\\
+\end{center}
 
-Now in practice, solving the model in Fico Xpress takes a substantial amount of time as the number of cities and days of the trip grows. So we impose some additional constraints, first we note that with unconstrained utility and costs, both the utility is non-decreasing with the number of days, then we can solve a shorter trip and use its results as lower bounds for utility in the longer trip. Also there exists a simple heuristic for finding the maximum utility if we ignore the minimum days of stay constraint, this heuristic solution can be used as an upper bound for the utility. We also note that for an optimal utility, the number of days in each city will not change in the optimal cost optimisation. Therefore we can use this as a constraint for improving the performance of the cost optimisation. Then we can add the constraint
+Once the optimal enjoyment has been found we then optimise again to minimise cost using the following objective function.
+\begin{equation*}
+\text{Min } \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{id} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} \mu_{ij} \cdot m_{ijd} + \sum_{i \in \mathcal{C}} \left( x_{i,1} \cdot \lambda_{i} + x_{i,D} \cdot \nu_{i} \right)\\
+\end{equation*}
+With the constraint that the utility is equal to the optimal objective value previously found:
 \begin{align*}
-	\sum\limits_{j=1}^D s_{ij} &= (\sum\limits_{j=1}^D s_{ij})_{optimal} & \forall i \in C.
+\sum_{i \in \mathcal{C}} \sum_{d=1}^{D} s_{id} \cdot u_{ij} &= \left(\sum_{i \in \mathcal{C}} \sum_{d=1}^{D} s_{id} \cdot u_{id}\right)_{optimal}
+\end{align*}\\
+
+In practice, solving the model in FICO Xpress takes a substantial amount of time as the number of cities and days of the trip grows. Therefore we impose some additional constraints.
+
+\begin{enumerate}
+\item Lower bound on the utility: First we note that with unconstrained budget, the utility is non-decreasing with the trip duration, eg. the optimal utility of an eight day trip is always less than that of a nine day trip. Thus we can solve a shorter trip and use its optimal utility as a lower bound for the utility in the longer trip.
+\item Upper bound on the utility: The previous heuristic from Section 3.1.2 gives maximal utility if we ignore the minimum days constraint. This will be an upper bound for our model.
+\item Optimal duration in each city: For an optimal utility, the number of days in each city will not change in the cost optimisation. Therefore we can use this as a constraint for improving the performance of the cost optimisation:
+\begin{align*}
+	\sum\limits_{d=1}^D s_{id} &= \left(\sum\limits_{d=1}^D s_{id}\right)_{optimal} & \forall i \in C.
 \end{align*}
-If we have multiple solutions that optimise utility then we can simply optimise cost for each of them and take the minimum.
+
+\end{enumerate}
 
 
+
+
+\newpage
 \subsubsection{Decaying Utility Results}
-We run the model using a 10\% per day rate of decay with the contraint that we stay at least 2 days in any city that we visit. Below is the trip that maximises the utility for 15 days user such conditions. It's noted that this model as it was formulated takes a very long time to run with computations not terminating after 3+ hours, however a trip of 10 days takes only seconds to run and we note that the utility of a trip with more days can only be higher if budget is not constrained. 
-
-Also note that since the utility scores are normalised in a way that the maximum is 100, we can also obtain an upper bound to use in the model by adding $100 \cdot (\text{extra days})$ to the optimal solution of the shorter trip. In theory this brings us closer to the convex hull which should aid the model, but in practice the solving times with such constraints were sometimes detrimental. Though tweaking around the theoretical bounds did eventually produce results in reasonable time, there was no observed pattern in how to construct the highly beneficial bounds. \\
+We first run the model using a decay factor of 0.9 (i.e 10\% rate of decay per day) with the constraint that we stay at least 2 days in any city that we visit. Below is the trip that maximises the utility for 15 days under such conditions.
+ 
 \begin{table}[h]
-\caption{Trip plan with optimised decaying utility for 15 days}
 \centering
 \begin{tabular}{c|c|c}
 	\hline
-	\rule{0pt}{2ex} Days & \# of Days & City \\
+	\rule{0pt}{2ex} \textbf{Days} & \textbf{\# of Days} & \textbf{City} \\
 	\hline
 	1-2 & 2 & Rome \\
 	3-4 & 2 & Barcelona \\
 	5-6 & 2 & Venice \\
 	7-10 & 3 & London \\
 	11-12 & 2 & Berlin \\
-	13-15 & 2 & Paris \\
-	\hline
+	13-15 & 2 & Paris \\\hline
+	\multicolumn{2}{c |}{\textbf{Total Cost ($\$$)}} & 5195 \\ \hline
+	\multicolumn{2}{c |}{\textbf{Total Utility}} & 1219 \\ \hline
 \end{tabular}
 \vspace{1mm}
-\end{table}\\
-This trip has a total utility of 1219 and cost of $\$5195$, for comparison we develop a simple heuristic from observations of the behaviour of the MIP model.
+\caption{Trip plan with optimised decaying utility for 15 days}
+\end{table}
 
-\begin{algorithm}[h!]
-\begin{algorithmic}[1]
-\STATE Algorithm MaximumUtilityHeuristic
-\WHILE{DaysLeft $>$ 0}
-	\STATE{Find highest utility $City$}
-	\IF{$Days_{City} > 0$}
-	\STATE{$Days_{City} \gets Days_{City}+1$}
-	\STATE{$Utility_{City} \gets Utility_{City} \cdot DecayFactor$}
-	\STATE{$DaysLeft \gets DaysLeft-1$}
-	\ELSE
-	\STATE{$Days_{City} \gets Days_{City}+2$}
-	\STATE{$Utility_{City} \gets Utility_{City} \cdot DecayFactor^2$}
-	\STATE{$DaysLeft \gets DaysLeft-2$}
-	\ENDIF
-\ENDWHILE
-\STATE{$CitiesList \gets \{City:Days_{City} > 0\}$}
-\STATE{$Trip_1 \gets \text{$City$ in } CitiesList \text{ with lowest cost from Melbourne}$}
-\STATE{$CurrentCity \gets Trip_1$}
-\STATE{\textbf{Remove} $CurrentCity$ from $CitiesList$}
-\STATE{$i \gets 1$}
-\WHILE{$CitiesList$ not empty}
-\STATE{$Trip_{i+1} \gets City \text{ in } CitiesList \text{ with cheapest flight from } CurrentCity$}
-\STATE{$CurrentCity \gets Trip_{i+1}$}
-\STATE{\textbf{Remove} $CurrentCity$ \text{from} $CitiesList$}
-\STATE{$i \gets i+1$}
-\ENDWHILE
-\STATE{$Trip$ now stores order in which cities are visited and $Days$ stores the days spent in each city.}
-\end{algorithmic}
-\caption{Decaying utility algorithm}
-\label{alg:bstSearch}
-\end{algorithm}
-This is essentially a greedy algorithm which looks for the city with the highest current utility and adds 2 days to its staying duration if it's not already a part of the trip and 1 if it's already being visited. Then we note that flying as little as possible will reduce cost so all days spent in a given city will be spend together, therefore a greedy algorithm is used to find the order in which to visit the cities. Now with a decay factor of $0.9$ we obtain the following trip from the heuristic.
-\begin{table}[h!]
-\caption{Trip plan from heuristic for decaying utility for 15 days}
-\centering
-\begin{tabular}{c|c|c}
-	\hline
-	\rule{0pt}{2ex} Days & \# of Days & City \\
-	\hline
-	1-3 & 3 & London \\
-	4-5 & 2 & Paris \\
-	6-7 & 2 & Berlin \\
-	8-9 & 2 & Bercelona \\
-	10-11 & 2 & Venice \\
-	12-13 & 2 & Rome \\
-	14-15 & 2 & Madrid \\
-	\hline
-\end{tabular}
-\vspace{1mm}
-\end{table}\\
-This trip gives an utility of 1096 and total cost fo $\$5101$. Therefore it ends up being slightly cheaper than the solution found by the model but also achieves lower utility. We look at the breakdown of costs.\\
-\begin{table}[h!]
-\caption{Comparison between MIP and Heuristic solutions}
-\centering
-\begin{tabular}{r|c|c}
-\hline
-& MIP & Heuristic \\
-\hline
-Melbourne Travel & \$1926 & \$1928 \\
-Europe Travel & \$290 & \$419 \\
-Daily Costs & \$2979 & \$2754 \\
-\hline
-\hline
-\textbf{Total} & \$5195 & \$5101 \\
-\hline
-\textbf{Utility} & 1219 & 1096 \\
-\hline
-\end{tabular}	
-\end{table} \\
-Then we see that the heuristic performs reasonably well and the derived utility can be used as a lower bound in the MIP optimisation. For comparison we can set the utility of the model to that of the heuristic, this gives use the following trip plan.
-\begin{table}[h!]
-\caption{Trip plan with a utility fixed at 1096 for 15 days}
-\centering
-\begin{tabular}{c|c|c}
-	\hline
-	\rule{0pt}{2ex} Days & \# of Days & City \\
-	\hline
-	1-2 & 2 & Barcelona \\
-	3-4 & 2 & Vienna \\
-	5-8 & 4 & Berlin \\
-	9-11 & 3 & Paris \\
-	12-15 & 4 & Amsterdam \\
-	\hline
-\end{tabular}
-\vspace{1mm}
-\end{table}\\
-This has an utility score of 1096 but costs only $\$4465$ saving $\$636$ compared to the heuristic. So in comparison the the heuristic we find that the MIP is able to better optimise utility, but also for the same utility as the heuristic provides it is able to find a cheaper trip. We then explore some different rates of utility decay, this will affect the duration of stay in each city.
+
+We explore some different rates of utility decay, this will affect the duration of stay in each city.
 
 \begin{table}[h!]
-\caption{Trip plan with a decay factor for 0.95 and 0.98 for 15 days}
 	\begin{minipage}[b]{0.45\linewidth}
-		\caption{0.95 Decay Factor}
 		\centering
 		\vspace{1mm}
 		\begin{tabular}{c|c|c}
 			\hline
-			\rule{0pt}{2ex} Days & \# of Days & City \\
+			\rule{0pt}{2ex} \textbf{Days} & \textbf{\# of Days} & \textbf{City} \\
 			\hline
 			1-4 & 4 & London \\
 			5-6 & 2 & Barcelona \\
@@ -504,66 +433,51 @@ This has an utility score of 1096 but costs only $\$4465$ saving $\$636$ compare
 			12-15 & 4 & Paris \\
 			\hline
 		\end{tabular}
+		\caption{0.95 Decay Factor}
 	\end{minipage}
 	\hspace{0.5cm}
 	\begin{minipage}[b]{0.45\linewidth}
-		\caption{0.98 Decay Factor}
 		\centering
 		\vspace{1mm}
 		\begin{tabular}{c|c|c}
 			\hline
-			\rule{0pt}{2ex} Days & \# of Days & City \\
+			\rule{0pt}{2ex} \textbf{Days} & \textbf{\# of Days} & \textbf{City} \\
 			\hline
 			1-8 & 8 & London \\
 			9-10 & 2 & Berlin \\
 			11-15 & 5 & Paris \\
 			\hline
 		\end{tabular}
+		\caption{0.98 Decay Factor}
 	\end{minipage}
 \end{table}
 
-So we see that as one would expect, slower rates of utility decay would lead to longer staying durations in the cities that are visited. This allows for a more natural control of stay durations than simply setting maximum and minimum days, for longer trips it may make sense to set a slower rate of utility decay. Given that the model precomputes the utilities for each day in each city, it's simple to alter the way that utility is calculated for each day, a different rate of change may be derived for each city based on statistics on average lengh of stay and more complex models may be used to define the utility without need to alter the MIP.
+We see that as one would expect, slower rates of utility decay lead to longer staying durations in the cities that are visited. This allows for a more natural control of stay durations than simply setting maximum and minimum days. For longer trips it may make sense to set a slower rate of utility decay. Given that the model precomputes the utilities for each day in each city, it is simple to alter the way that utility is calculated. A different rate of change may be derived for each city based on statistics on average lengh of stay and more complex models may be used to define the utility without the need to alter the ILP.
 
-Also of interest is how the model reacts to limited budgets, we wish to see how the traveller adapts to not being able to follow the trip with the optimised utility. To do this we add another constraint to our model that for a given budget $B$.
+Also of interest is how the model reacts to a limited budget, $\beta$. We wish to see how the traveller adapts to not being able to follow the trip with the optimised utility. To do this we add another constraint to our model:
 \begin{equation*}
-	\sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{id} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} \mu_{ij} \cdot m_{ijd} \leq B\\
+	\sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{id} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} \mu_{ij} \cdot m_{ijd} + \sum_{i \in \mathcal{C}} \left( x_{i,1} \cdot \lambda_{i} + x_{i,D} \cdot \nu_{i} \right)\\ \leq \beta\\
 \end{equation*}
-Recall that for a decay factor of $0.9$ we had a trip which optimised utility at 1219 and had a cost of $\$5195$. So we see how the model would react to having a budget of $\$4500$
-\begin{table}[h]
-\caption{Trip plan with decay factor of 0.9 and budget of \$4500 for 15 days}
+Recall that for a decay factor of $0.9$ we had a trip which optimised utility at 1219 and a cost of $\$5195$. We see in Table 10 the new optimal trip with a budget constraint of $\$4500$.
+\begin{table}[h!]
 \centering
 \begin{tabular}{c|c|c}
 	\hline
-	\rule{0pt}{2ex} Days & \# of Days & City \\
+	\rule{0pt}{2ex} \textbf{Days} & \textbf{\# of Days} & \textbf{City} \\
 	\hline
 	1-2 & 2 & London \\
 	3-5 & 3 & Paris \\
 	6-9 & 4 & Berlin \\
-	10-15 & 6 & Istanbul \\
-	\hline
+	10-15 & 6 & Istanbul \\\hline
+	\multicolumn{2}{c |}{\textbf{Total Cost ($\$$)}} & 4341 \\ \hline
+	\multicolumn{2}{c |}{\textbf{Total Utility}} & 1102 \\ \hline
 \end{tabular}
 \vspace{1mm}
+\label{paul}
+\caption{Trip plan with decay factor of 0.9 and budget of \$4500 for 15 days}
 \end{table}
-Now interestingly this gives an utility of 1102 with a cost of \$4341, meaning that is both cheaper than but also yields greater utility than the heuristic solution. We look at the breakdown of costs,
-\begin{table}[h]
-\caption{Comparison between optimal utility and budget constrained trips}
-\centering
-\begin{tabular}{r|c|c}
-\hline
-& MIP & Heuristic \\
-\hline
-Melbourne Travel & \$1926 & \$1755 \\
-Europe Travel & \$290 & \$291 \\
-Daily Costs & \$2979 & \$1755 \\
-\hline
-\hline
-\textbf{Total} & \$5195 & \$4341 \\
-\hline
-\textbf{Utility} & 1219 & 1102 \\
-\hline
-\end{tabular}
-\end{table} \\
-Upon inspectino of the data, it would appear that the Istanbul has a high $\frac{\text{utility}}{\text{daily cost}}$ ratio and also offers a very cheap flight back to Melbourne, then it's no surprise that in many of the budget constrained scenarios we end up with significant time spent in Istanbul.
+
+Upon inspection of the data, it would appear that Istanbul has a high $\frac{\text{utility}}{\text{daily cost}}$ ratio and also offers a very cheap flight back to Melbourne, then it is no surprise that in many of the budget constrained scenarios we end up with significant time spent in Istanbul.
 
 \clearpage
 \newpage
@@ -577,51 +491,46 @@ Upon inspectino of the data, it would appear that the Istanbul has a high $\frac
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Currently our base model takes limited input from the propective traveller; only the number of days of the trip and possibly the minimum and maximum number of days spent in any one city. To make the model more applicable in real world scenarios we propose some extensions which can handle more varied inputs.
-
-As a brief example, let us consider a traveller who does not want to visit Istanbul. Adding the following set of constraints to the base model will impose the traveller's needs (Istanbul's index is 13),
-$$	x_{13,d} = 0~~,~~ \forall d \in D	$$
-The base model always returned Istanbul as one of the cities visited, as it had the overall cheapest flights. So the traveller's dislike of Istanbul has increased the minimal cost of their trip from \$3672 to \$3860.
+Currently our base model takes limited input from the propective traveller; only the number of days of the trip and the minimum and maximum number of days spent in any one city. To make the model more applicable in real world scenarios we propose some extensions which can handle more varied inputs.
 
 \subsection{Varying Airfares}
-So far, we have assumed that the cost of flights was uniform across all days. This extension's aim is to ensure our model returns more realistic results by considering how the cost of airfares vary across the week. We use \url{momondo.com.au} again to source the airfare data \cite{momondo}. For the sake of computational efficiency, we arbitrarily set the first day of the trip to Sunday.
+So far, we have assumed that the cost of flights was uniform across all days. We can ensure our model returns more realistic results by considering how the cost of airfares vary across the week. We use \url{momondo.com.au} again to source the airfare data \cite{momondo}. For the sake of computational efficiency, we arbitrarily set the first day of the trip to Sunday.
 
 %Initially, we aimed to only differentiate the flight costs between weekdays and weekends, however after inspecting the data, the cost variation did not appear so binary. Instead, 
-To model the variation in airfares, the travel cost parameter $\mu_{ij}$ needs an additional dimension to store the day of the week. So we now redefine $\mu$ as follows,
+To model the variation in airfares, the travel cost parameter $\mu_{ij}$ needs an additional dimension to store the day of the week. So we now redefine $\mu$ as follows:
 
 $\mu_{ijd}$: The cost to fly from city $i$ to city $j$ on day $d$, $\forall i,j \in \mathcal{C}$, $d=1...7$.
 
-If the size of $\mathcal{C}$ is $n$, then we now have a 3-dimensional array of size $n\times n\times 7$. To define an array in the Mosel language, one must specify each element and its corresponding index tuple. There are many ways of shortcutting this process, however to define the elements of a 3-dimensional array the shorthand becomes rather inelegant. In the case of 15 cities, the parameter definition section became longer than the model definition itself.
+If there are $n$ cities, then we now have a 3-dimensional array of size $n\times n\times 7$. To define a 3-dimensional array in the Mosel language is rather inelegant. In the case of 15 cities, the parameter definition Section becomes longer than the model definition itself.
 
-Seeking an alternate and more compact implementation, we decided to take the current flight data, $\mu_{ij}$, as the base price to travel between any two cities. Then construct a new parameter which stores how the flight cost is augmented for each day of the week. So now, for each of the cities, we have a size $n \times 7$ array which stores these augmentation values as percentages,
+Seeking an alternate and more compact implementation, we take the current flight data, $\mu_{ij}$, as the base price to travel between any two cities. We then construct a new parameter which stores how the flight cost is augmented for each day of the week. So now, for each of the cities, we have a size $n \times 7$ array which stores these augmentation values as percentages:
 
-\textbf{Parameters} \\
 $a_{ijd}$: The percentage increase in airfares from city $i$ to city $j$ on day $d$, $\forall i,j \in \mathcal{C}$, $d=1...7$.\\
 
-To demonstrate this we provide Moscow's augmentation array, $a_{1jd}$. An entry of zero indicates that there is no increase in price for the flight on that day. The full table can be found in the appendicies.\\
-\begin{table}[h]
-	\caption{Airfare Augmentation Data for Moscow}
+To demonstrate this we provide Moscow's augmentation array, $a_{1jd}$. An entry of zero indicates that there is no increase in price for the flight on that day. The full table can be found in the appendix.\\
+\begin{table}[ht!]
 	\centering
 	\vspace{1mm}
 	\begin{tabular}{c|c|c|c|c|c|c|c}
 		\hline
-		\rule{0pt}{2ex} City & Sunday & Monday & Tuesday & Wednesday & Thursday & Friday & Saturday \\
+		\rule{0pt}{2ex} \textbf{City} & \textbf{Sun} & \textbf{Mon} & \textbf{Tue} & \textbf{Wed} & \textbf{Thu} & \textbf{Fri} & \textbf{Sat} \\
 		\hline
-		\rule{0pt}{2ex}Moscow & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-		Paris & 4 & 1 & 0 & 3 & 8 & 13 & 10 \\
-		London & 11 & 3 & 0 & 2 & 6 & 8 & 6 \\
-		Madrid & 10 & 3 & 0 & 6 & 13 & 17 & 14 \\
-		Rome & 4 & 1 & 0 & 3 & 11 & 12 & 12 \\
+		\rule{0pt}{2ex}\textbf{Moscow} & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+		\textbf{Paris} & 4 & 1 & 0 & 3 & 8 & 13 & 10 \\
+		\textbf{London} & 11 & 3 & 0 & 2 & 6 & 8 & 6 \\
+		\textbf{Madrid} & 10 & 3 & 0 & 6 & 13 & 17 & 14 \\
+		\textbf{Rome} & 4 & 1 & 0 & 3 & 11 & 12 & 12 \\ \hline
 	\end{tabular}
+	\caption{Airfare Augmentation Data for Moscow}
 \end{table}
 
 Now adding this to the objective function gives
 \begin{equation*}
-\text{Min } \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{id} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} m_{ijd} \cdot (\mu_{ij} + 0.01 \cdot \mu_{ij} \cdot a_{ij(1+d \text{ mod }7)}) + \sum_{i \in \mathcal{C}} \left( x_{i,1} \cdot \lambda_{i} + x_{i,D} \cdot \nu_{i} \right)\\
+\text{Min } \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{id} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} m_{ijd} \cdot \left(\mu_{ij} + \frac{\mu_{ij} \cdot a_{ij(1+~d \text{ mod }7)}}{100}\right) + \sum_{i \in \mathcal{C}} \left( x_{i,1} \cdot \lambda_{i} + x_{i,D} \cdot \nu_{i} \right)\\
 \end{equation*}
-The modulus function is used here in the subscript of the augmentation array. This is clearly so that on the eighth and later days of the trip we correctly access the corresponding element of the array.
+The modulus function is used here in the subscript of the augmentation array. This is clearly so that on the eighth and later days of the trip we correctly access the corresponding element of the array. We divide by 100 here to convert from percentages.
 
-As an illustration, now consider a traveller planning a 13 day trip, who needs visit Florence and then travel to Moscow on the first Sunday of their trip. They also want to spend the last part of their trip in Crete. Adding the following constraints imposes the traveller's desires on the model,
+As an illustration, now consider a traveller planning a 13 day trip, who needs to fly from Florence to Moscow on the first Sunday of their trip (day 7). They also want to spend the last day of their trip in Crete. Adding the following constraints imposes the traveller's desires on the model,
 \begin{align}
 m_{10,1,7} &= 1 \nonumber\\
 x_{6,13} &= 1. \nonumber
@@ -630,54 +539,70 @@ Below, we list the results from the base model and varying airfares extension.
 
 \begin{table}[ht]
 	\begin{minipage}[b]{0.45\linewidth}
-		\caption{Base Model Output}
 		\centering
 		\vspace{1mm}
-		\begin{tabular}{| c || c |}
+		\begin{tabular}{ c | c | c }
 			\hline
-			Number of Days & City \\ \hline \hline
-			4 & Istanbul \\ \hline
-			2 & Prague \\ \hline
-			2 & Florence \\ \hline
-			3 & Moscow \\ \hline
-			2 & Crete \\ \hline
-			Total Cost: & \$4253 \\ \hline
+			\textbf{Days} & \textbf{\# of Days} & \textbf{City} \\ \hline
+			1-4 & 4 & Istanbul \\ 
+			5-6 & 2 & Prague \\ 
+			7-8 & 2 & Florence \\ 
+			9-11 & 3 & Moscow \\ 
+			12-13 & 2 & Crete \\ \hline
+			\multicolumn{2}{c |}{\textbf{Total Cost ($\$$)}} & 4253 \\ \hline
 		\end{tabular}
+		\caption{Base Model Output}
 		\label{varying_airfares_example_1}
 	\end{minipage}
 	\hspace{0.5cm}
 	\begin{minipage}[b]{0.45\linewidth}
-		\caption{Varying Airfares Output}
 		\centering
 		\vspace{1mm}
-		\begin{tabular}{| c || c |}
+		\begin{tabular}{ c | c | c }
 			\hline
-			Number of Days & City \\ \hline \hline
-			4 & Istanbul \\ \hline
-			2 & Prague \\ \hline
-			2 & Florence \\ \hline
-			3 & Moscow \\ \hline
-			2 & Crete \\ \hline
-			Total Cost: & \$5715.16 \\ \hline
+			\textbf{Days} & \textbf{\# of Days} & \textbf{City} \\ \hline
+			1-4 & 4 & Istanbul \\ 
+			5-6 & 2 & Prague \\ 
+			7-8 & 2 & Florence \\ 
+			9-11 & 3 & Moscow \\ 
+			12-13 & 2 & Crete \\ \hline
+			\multicolumn{2}{c |}{\textbf{Total Cost ($\$$)}} & 5715.16 \\ \hline
 		\end{tabular}
+		\caption{Varying Airfares Output}
 		\label{varying_airfares_example_2}
 	\end{minipage}
 \end{table}
 
-We can see that both models have returned the same trip, although their minimal costs vary greatly. The base model returns a total cost of \$4253. Whereas with the variable airfare data added to the model, the minimum cost increases by \$1462.16 (\%34.38) to \$5715.16. This cost increase primarily comes from the \%39 increase in flights from Florence to Moscow on a Sunday and a significant \%249.56 increase in flight cost from Crete to Melbourne on a Friday.  So removing the assumption that flight costs are uniform across all days has shown that our base model's cost estimate was about \$1500 lower than this extension's more accurate estimation.
+We can see that both models have returned the same trip, although their minimal costs vary greatly. The base model returns a total cost of \$4253. Whereas with the variable airfare data added to the model, the minimum cost increases by \$1462.16 (34.38\%) to \$5715.16. This cost increase primarily comes from the 39\% increase in flight costs from Florence to Moscow on a Sunday and a significant 249.56\% increase in flight cost from Crete to Melbourne on a Friday.  Removing the assumption that flight costs are uniform across all days has shown that our base model's cost estimate is approximately \$1500 lower than this extension's more accurate estimation.
 
 
-\subsection{Activity Preference}
-We will now return to the scenario in which we wish to maximise the traveller's enjoyment subject to a budget constraint. We can extend the base model by calculating the traveller's enjoyment based on various criteria, such as beaches, sport and architecture. For each criteria, we will give each city a rating out of 10. Let $\kappa_{ic}$ denote the rating for criteria $c$ for city $i$. The ratings are displayed in Table \ref{CityRatings} in the appendix. These ratings were gathered from various online sources such as \url{tripadvisor.com.au} \cite{tripadvisor} and \url{hostelworld.com} \cite{hostelworld}. The traveller then specifies a rating out of 10 for each of the criteria, as well as a budget for the entire trip. Let $\rho_{c}$ denote the traveller's rating for criteria $c$ and let $\beta$ denote the budget. We will assume that the traveller's enjoyment is proportional to the product of the criteria rating, the city rating and the number of days spent in that city. Our objective function becomes:
+\subsection{Criteria Preference}
+We now consider a more realistic representation of utility. We derive a new measure of utility based on a traveller's enjoyment of various characteristics of a city. For the purposes of differentiating this from the previously mentioned utility we define this measure as enjoyment.
+
+We can extend the base model by calculating the traveller's enjoyment based on various criteria, such as beaches, sport and architecture. For each criteria, we give each city a rating out of 10. Let $\kappa_{ic}$ denote the rating for criteria $c$ for city $i$. The ratings are displayed in Table \ref{CityRatings} in the appendix. These ratings were gathered from various online sources such as \url{tripadvisor.com.au} \cite{tripadvisor} and \url{hostelworld.com} \cite{hostelworld}.
+
+The traveller then specifies a rating out of 10 for each of the criteria, as well as a budget for the entire trip. Let $\rho_{c}$ denote the traveller's rating for criteria $c$ and let $\beta$ denote the budget. We assume that the traveller's enjoyment is proportional to the product of the criteria rating, the city rating and the number of days spent in that city. Our objective function becomes:
 \begin{equation*}
 \text{Max   } \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \sum_{c=1}^{8} \rho_{c} \cdot \kappa_{ic} \cdot x_{id}
 \end{equation*}
-We also need to add the budget constraint to the model:
+As in Section 3.2.2, we need a budget constraint:
 \begin{equation*}
-\sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{id} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} \mu_{ij} \cdot m_{ijd} \leq \beta
+\sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{id} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} \mu_{ij} \cdot m_{ijd} + \sum_{i \in \mathcal{C}} \left( x_{i,1} \cdot \lambda_{i} + x_{i,D} \cdot \nu_{i} \right) \leq \beta
 \end{equation*}
 
-Suppose the traveller wishes to travel for 15 days on a \$6,000 budget and his criteria ratings are $\rho=[10, 0, 1, 2, 10, 1, 2, 1]$. That is, beaches and nightlife are very important to the traveller compared to all other criteria. The model yields the traveller's optimal trip displayed in Table \ref{Trip1P15C}. The cost of the trip is \$5,329. As expected, Barcelona and Crete, with beach ratings of 8 and 10 respectively, are included in the trip, as well as London and Amsterdam, which both have nightlife ratings of 9. \\
+Suppose the traveller wishes to travel for 15 days on a \$6,000 budget and their criteria ratings are:
+ 
+\begin{table}[h]
+\centerline{\begin{tabular}[l]{c|c|c|c|c|c|c|c}
+\hline 
+       \textbf{Beach} & \textbf{History} & \textbf{Museums} & \textbf{Architecture} & \textbf{Nightlife} & \textbf{Food} & \textbf{Sport} & \textbf{Theatre}\TBstrut\\\hline
+10 & 0 & 1 & 2 & 10 & 1 & 2 & 1  	\TBstrut\\\hline
+\end{tabular}
+}
+\caption{Criteria ratings}
+\end{table}
+
+That is, beaches and nightlife are very important to the traveller compared to all other criteria. The model yields the traveller's optimal trip displayed in Table \ref{Trip1P15C}. The cost of the trip is \$5,329. As expected, Barcelona and Crete, with beach ratings of 8 and 10 respectively, are included in the trip, as well as London and Amsterdam, which both have nightlife ratings of 9. \\
 \begin{table}[h]
 \centerline{\begin{tabular}[l]{>{\bfseries}c|c|c}
 \hline 
@@ -690,7 +615,7 @@ Suppose the traveller wishes to travel for 15 days on a \$6,000 budget and his c
 }
 \caption{15 day trip maximising criteria utility \label{Trip1P15C}}
 \end{table}
-\\We can now set the enjoyment to be fixed at the optimal value of this trip, and solve a new problem which minimises budget. This results in the trip in Table \ref{Trip1P15Cmin} with a new cost of \$5,044. The number of days in each city remains the same while the order in which the cities are visited is changed to minimise the total travel cost.
+\\We can now set the enjoyment to be fixed at the optimal value of this trip, and solve a new problem which minimises cost. This results in the trip in Table \ref{Trip1P15Cmin} with a new cost of \$5,044. The number of days in each city remains the same while the order in which the cities are visited is changed to minimise the total travel cost.
 \begin{table}[h]
 \centerline{\begin{tabular}[l]{>{\bfseries}c|c|c}
 \hline 
@@ -709,19 +634,19 @@ Suppose the traveller wishes to travel for 15 days on a \$6,000 budget and his c
 
 Often a person decides to travel to Europe because their friend has planned a trip. The aim of the second person's trip is to spend as many days with the first person as possible. However, due to budget constraints, it might not be possible for the second person to spend their whole trip with the first person.
 
-This problem can be solved using our model. We introduce a new variable $T_{id}$, which is a binary variable that equals 1 if the two people are together in city $i$ on day $d$. We also add an additional subscript $p$ to the location and move variables to indicate the person they refer to [i.e., $x_{idp}$ and $m_{ftdp}$]. When the second person tries to maximise the number of days they are with the first person, their objective function is:
+This problem can be solved by extending our model. We introduce a new variable $t_{id}$, which is a binary variable that equals 1 if the two people are together in city $i$ on day $d$. We also add an additional subscript $p$ to the location and move variables to indicate the person they refer to [i.e., $x_{pid}$ and $m_{pijd}$]. When the second person tries to maximise the number of days they are with the first person, their objective function is:
 
 \begin{equation*}
-	\max \sum_{i \in \mathcal{C}} \sum_{d = 1}^{D} T_{id}
+	\text{Max} \sum_{i \in \mathcal{C}} \sum_{d = 1}^{D} t_{id}
 \end{equation*}
 
 For this model, we need the additional constraint:
 
 \begin{align}
-	\sum_{p = 1}^{2} x_{idp} & \geq 2 \cdot T_{id} & \forall i \in \mathcal{C}, d = 1, \ldots, D
+	\sum_{p = 1}^{2} x_{pid} & \geq 2 \cdot t_{id} & \forall i \in \mathcal{C}, d = 1..D
 \end{align}
 
-As we are maximising $T_{id}$, this constraint will ensure that $T_{id} = 1$ if both $x_{id1} = 1$ and $x_{id2} = 1$ (i.e., both people are in city $i$ on day $d$), otherwise it is $T_{id} = 0$.
+As we are maximising $t_{id}$, this constraint will ensure that $t_{id} = 1$ if both $x_{1id} = 1$ and $x_{2id} = 1$ (i.e., both people are in city $i$ on day $d$), otherwise $t_{id} = 0$.
 
 This problem requires five optimisation steps:
 
@@ -730,25 +655,25 @@ This problem requires five optimisation steps:
 	\item Minimise cost of Person 1's trip given that utility
 	\item Maximise number of days where Person 1 and Person 2 are together given Person 1's trip
 	\item Maximise utility of Person 2's trip given that number of days together
-	\item Minimise cost of Person 2's trip given that utility and number of days with Person 1
+	\item Minimise cost of Person 2's trip given that utility and number of days together
 \end{enumerate}
 
 The first two optimisation steps decide the first person's trip independently of the second person. The last three optimisation steps decide the second person's trip given that the first person's trip has already been decided.
 
-To reduce computational time, this model was run over 10 days with constant utility on each day (i.e., the initial utility values of each city in the base model). The first person's budget is $\$$5,000, and the second person's budget is $\$$3,500. The results are presented in the two tables below.
+To reduce computational time, this model was run for a 10 day trip with constant utility on each day (i.e., the initial utility values of each city in the base model). The first person's budget is $\$$5,000, and the second person's budget is $\$$3,500. The results are presented in the two tables below.
 
 \begin{table}[ht!]
 	\centering
 	\begin{minipage}{0.48\textwidth}
 		\centering
-		\begin{tabular}{| c | c || c |}
+		\begin{tabular}{ c | c | c }
 			\hline
-			Days & Number & City \\ \hline \hline
-			1-4 & 4 & London \\ \hline
-			5-6 & 2 & Berlin \\ \hline
-			7-10 & 4 & Paris \\ \hline \hline
-			\multicolumn{2}{| c ||}{Total Cost ($\$$)} & 4,355 \\ \hline
-			\multicolumn{2}{| c ||}{Total Utility} & 944.00 \\ \hline
+			\textbf{Days} & \textbf{Number} & \textbf{City} \\ \hline
+			1-4 & 4 & London \\ 
+			5-6 & 2 & Berlin \\ 
+			7-10 & 4 & Paris \\ \hline
+			\multicolumn{2}{ c |}{\textbf{Total Cost ($\$$)}} & 4,355 \\ \hline
+			\multicolumn{2}{ c |}{\textbf{Total Utility}} & 944.00 \\ \hline
 		\end{tabular}
 		\caption{Person 1}
 		\label{person_1_meetup}
@@ -756,14 +681,14 @@ To reduce computational time, this model was run over 10 days with constant util
 	\hfill
 	\begin{minipage}{0.48\textwidth}
 		\centering
-		\begin{tabular}{| c | c || c |}
+		\begin{tabular}{ c | c | c }
 			\hline
-			Days & Number & City \\ \hline \hline
-			1-2 & 2 & London \\ \hline
-			3-6 & 4 & Berlin \\ \hline
-			7-10 & 4 & Istanbul \\ \hline \hline
-			\multicolumn{2}{| c ||}{Total Cost ($\$$)} & 3,417 \\ \hline
-			\multicolumn{2}{| c ||}{Total Utility} & 856.73 \\ \hline
+			\textbf{Days} & \textbf{Number} & \textbf{City} \\ \hline
+			1-2 & 2 & London \\ 
+			3-6 & 4 & Berlin \\ 
+			7-10 & 4 & Istanbul \\ \hline
+			\multicolumn{2}{ c |}{\textbf{Total Cost ($\$$)}} & 3,417 \\ \hline
+			\multicolumn{2}{ c |}{\textbf{Total Utility}} & 856.73 \\ \hline
 		\end{tabular}
 		\caption{Person 2}
 		\label{person_2_meetup}
@@ -774,21 +699,21 @@ As the second person has a smaller budget, they are only able to spend 4 out of 
 
 \subsubsection{Avoiding Another Traveller}
 
-The previous section explored the problem of the second person wanting to spend as many days with the first person as possible. A similar could be that the second person minimise the number of days that they are in the same city as the first person.
+The previous section explored the problem of the second person wanting to spend as many days with the first person as possible. A similar problem could be that the second person wants to \emph{minimise} the number of days that they are in the same city as the first person.
 
 This problem can be solved using a similar model. The new objective function is:
 
 \begin{equation*}
-	\min \sum_{i \in \mathcal{C}} \sum_{d = 1}^{D} T_{id}
+	\text{Min} \sum_{i \in \mathcal{C}} \sum_{d = 1}^{D} t_{id}
 \end{equation*}
 
 The additional constraint in the previous section needs to be adjusted to:
 
 \begin{align}
-	\sum_{p = 1}^{2} x_{idp} & \leq 1 + T_{id} & \forall i \in \mathcal{C}, d = 1, \ldots, D
+	\sum_{p = 1}^{2} x_{pid} & \leq 1 + t_{id} & \forall i \in \mathcal{C}, d = 1..D
 \end{align}
 
-As we are minimising $T_{id}$, this constraint will ensure that $T_{id} = 1$ if both $x_{id1} = 1$ and $x_{id2} = 1$ (i.e., both people are in city $i$ on day $d$), otherwise $T_{id} = 0$.
+As we are minimising $t_{id}$, this constraint will ensure that $t_{id} = 1$ if both $x_{1id} = 1$ and $x_{2id} = 1$ (i.e., both people are in city $i$ on day $d$), otherwise $t_{id} = 0$.
 
 This problem requires the same five optimisation steps as the previous section, except step 3 is now a minimisation step.
 
@@ -797,7 +722,7 @@ This problem requires the same five optimisation steps as the previous section, 
 	\item Minimise cost of Person 1's trip given that utility
 	\item \textbf{Minimise} number of days where Person 1 and Person 2 are together given Person 1's trip
 	\item Maximise utility of Person 2's trip given that number of days together
-	\item Minimise cost of Person 2's trip given that utility and number of days with Person 1
+	\item Minimise cost of Person 2's trip given that utility and number of days together
 \end{enumerate}
 
 The model was run over 10 days with constant utility, and both people having a budget of $\$$4,200. The results are presented in the two tables below.
@@ -806,14 +731,14 @@ The model was run over 10 days with constant utility, and both people having a b
 	\centering
 	\begin{minipage}{0.48\textwidth}
 		\centering
-		\begin{tabular}{| c | c || c |}
+		\begin{tabular}{ c | c | c }
 			\hline
-			Days & Number & City \\ \hline \hline
-			1-4 & 4 & London \\ \hline
-			5-8 & 4 & Berlin \\ \hline
-			9-10 & 2 & Paris \\ \hline \hline
-			\multicolumn{2}{| c ||}{Total Cost ($\$$)} & 4,169 \\ \hline
-			\multicolumn{2}{| c ||}{Total Utility} & 933.7 \\ \hline
+			\textbf{Days} & \textbf{\# of Days} & \textbf{City} \\  \hline
+			1-4 & 4 & London \\ 
+			5-8 & 4 & Berlin \\ 
+			9-10 & 2 & Paris \\  \hline
+			\multicolumn{2}{ c |}{\textbf{Total Cost ($\$$)}} & 4,169 \\ \hline
+			\multicolumn{2}{ c |}{\textbf{Total Utility}} & 933.7 \\ \hline
 		\end{tabular}
 		\caption{Person 1}
 		\label{person_1_avoid}
@@ -821,15 +746,15 @@ The model was run over 10 days with constant utility, and both people having a b
 	\hfill
 	\begin{minipage}{0.48\textwidth}
 		\centering
-		\begin{tabular}{| c | c || c |}
+		\begin{tabular}{ c | c | c }
 			\hline
-			Days & Number & City \\ \hline \hline
-			1-2 & 2 & Istanbul \\ \hline
-			3-4 & 2 & Berlin \\ \hline
-			5-8 & 4 & Paris \\ \hline
-			9-10 & 2 & London \\ \hline \hline
-			\multicolumn{2}{| c ||}{Total Cost ($\$$)} & 4,132 \\ \hline
-			\multicolumn{2}{| c ||}{Total Utility} & 899.01 \\ \hline
+			\textbf{Days} & \textbf{Number} & \textbf{City} \\ \hline 
+			1-2 & 2 & Istanbul \\ 
+			3-4 & 2 & Berlin \\ 
+			5-8 & 4 & Paris \\ 
+			9-10 & 2 & London \\ \hline 
+			\multicolumn{2}{ c |}{\textbf{Total Cost ($\$$)}} & 4,132 \\ \hline
+			\multicolumn{2}{ c |}{\textbf{Total Utility}} & 899.01 \\ \hline
 		\end{tabular}
 		\caption{Person 2}
 		\label{person_2_avoid}
@@ -839,7 +764,7 @@ The model was run over 10 days with constant utility, and both people having a b
 The second person is able to afford a trip where they are never in the same city on the same day as the first person. However, the second person's trip has a $4\%$ lower utility than the first person's trip even though both trips cost a similar amount. The second person is foregoing $4\%$ of their potential utility in order to never spend a day in the same city as the first person.
 
 \subsection{Multiple Person Trip}
-Suppose we now have a set of people, $\mathcal{P}$, planning a trip together, each with their own budget, $\beta_{p}$ and their own criteria ratings, $\rho_{p}$. We need to add another dimension to each variable corresponding to each person. For instance, $x_{ic}$ becomes $x_{pid}$ and denotes whether person $p$ is in city $i$ on day $d$. Furthermore, we require another binary variable, $t_{pqid}$ representing whether person $p$ and person $q$ are together in city $i$ on day $d$. To ensure this variable is in fact equal to one when two people are together, we require the following constraints (these constraints are similar to **John's part**):
+Suppose we now have a set of people, $\mathcal{P}$, planning a trip together, each with their own budget, $\beta_{p}$ and their own criteria ratings, $\rho_{p}$. We need to add another dimension to each variable corresponding to each person. For instance, $x_{id}$ becomes $x_{pid}$ and denotes whether person $p$ is in city $i$ on day $d$. Furthermore, we require another binary variable, $t_{pqid}$ representing whether person $p$ and person $q$ are together in city $i$ on day $d$. To ensure this variable is in fact equal to one when two people are together, we require the following constraints (these constraints are similar to those in Section 4.3):
 \begin{align*}
 x_{pid} + x_{qid} &\leq 1 + t_{pqid} \hspace{1cm} \forall p,q \in \mathcal{P}, i \in \mathcal{C}, d=1..D \\
 2\cdot t_{pqid} &\geq x_{pid} + x_{qid} \hspace{6.5mm} \forall p,q \in \mathcal{P}, i \in \mathcal{C}, d=1..D 
@@ -848,20 +773,20 @@ The new objective function maximises the total enjoyment of all people:
 \begin{equation*}
 \text{Max   } \sum_{p \in \mathcal{P}} \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \sum_{c=1}^{8} \rho_{pc} \cdot \kappa_{ic} \cdot x_{pid}
 \end{equation*}
-We also need to add a budget constraint for each person:
+We also need to adjust the budget constraint to handle mutiple people:
 \begin{equation*}
-\sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{pid} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} \mu_{ij} \cdot m_{pijd} \leq \beta_{p} \hspace{1cm} \forall p \in \mathcal{P}
+\sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{pid} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} \mu_{ij} \cdot m_{pijd}+ \sum_{i \in \mathcal{C}} \left( x_{i,1} \cdot \lambda_{i} + x_{i,D} \cdot \nu_{i} \right) \leq \beta_{p} \hspace{1cm} \forall p \in \mathcal{P}
 \end{equation*}
 
-In addition to the criteria rating, enjoyment objective function might also depend on the people with whom each traveller spends time. Perhaps there are two people who dislike each other or there is one person that everyone would like to spend time with. We can introduce a new parameter, $\gamma_{pq}$ representing how much person $p$ enjoys the company of person $q$. We will restrict $\gamma_{pq}$ to be between -5 and 5 inclusive and set $\gamma_{pp}=0$. The use of negative ensures that a traveller's enjoyment decreases if they spend time with someone they dislike. We will use a scale factor, $\sigma$, to make the ``person enjoyment" comparable to the ``place enjoyment". The objective function becomes:
+In addition to the criteria rating, the enjoyment objective function might also depend on each persons' preference for travelling companions. Perhaps there are two people who dislike each other or there is one person that everyone would like to spend time with. We can introduce a new parameter, $\gamma_{pq}$ representing how much person $p$ enjoys the company of person $q$. We will restrict $\gamma_{pq}$ to be between -5 and 5 inclusive and set $\gamma_{pp}=0$. The use of negative values ensures that a traveller's enjoyment decreases if they spend time with someone they dislike. We will use a scale factor, $\sigma$, to make the ``person enjoyment" comparable to the ``place enjoyment". The objective function becomes:
 \begin{equation*}
 \text{Max   } \sum_{p \in \mathcal{P}} \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \sum_{c=1}^{8} \rho_{pc} \cdot \kappa_{ic} \cdot x_{pid} + \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \sum_{p \in \mathcal{P}} \sum_{q \in \mathcal{P}} \sigma \cdot \gamma_{pq} \cdot t_{pqid}
 \end{equation*}
 
-Suppose we set $\rho_{pc}$ and $\gamma_{pq}$ as the values shown in Tables \ref{5P_cPref} and \ref{5P_pPref}. In this extreme case, persons 1 and 2 have the same interests, as do persons 3 and 4. Furthermore, all four people rate person 5 highly. On the other hand, person 5 shares no interests with his fellow travellers as well having low ratings for all of them. To reduce computation time, we will set the total number of days to be 7 and the maximum number of days allowed in a city to be 3.
+Suppose we set $\rho_{pc}$ and $\gamma_{pq}$ as the values shown in Tables \ref{5P_cPref} and \ref{5P_pPref}. In this extreme case, persons 1 and 2 have the same interests, as do persons 3 and 4. Furthermore, all four people rate person 5 highly. On the other hand, person 5 shares no interests with his fellow travellers as well as having low ratings for all of them. We choose $\sigma$ to be 25. To reduce computation time, we set the total number of days to be 7 and the maximum number of days allowed in a city to be 3.
 
-\begin{table}[h]
-\centerline{\begin{tabular}[l]{|>{\bfseries}c|c|c|c|c|c|c|c|c|}
+\begin{table}[h!]
+\centerline{\begin{tabular}[l]{>{\bfseries}c|c|c|c|c|c|c|c|c}
 \hline 
      \textbf{Person} & \textbf{Beach} & \textbf{History} & \textbf{Museums} & \textbf{Architecture} & \textbf{Nightlife} & \textbf{Food} & \textbf{Sport} & \textbf{Theatre}\TBstrut\\ \hline
 1 & 1 & 10 & 10 & 1 & 1 & 1 & 1 & 1 	\TBstrut\\ \hline
@@ -874,8 +799,8 @@ Suppose we set $\rho_{pc}$ and $\gamma_{pq}$ as the values shown in Tables \ref{
 \caption{Criteria ratings for 5 people\label{5P_cPref}}
 \end{table}
 
-\begin{table}[h]
-\centerline{\begin{tabular}[l]{|>{\bfseries}c|c|c|c|c|c|}
+\begin{table}[h!]
+\centerline{\begin{tabular}[l]{>{\bfseries}c|c|c|c|c|c}
 \hline 
      \textbf{Person} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5}\TBstrut\\ \hline
 1 & 0 & 3 & -1 & 1 & 5 	\TBstrut\\ \hline
@@ -888,9 +813,9 @@ Suppose we set $\rho_{pc}$ and $\gamma_{pq}$ as the values shown in Tables \ref{
 \caption{Person ratings for 5 people\label{5P_pPref}}
 \end{table}
 
-The optimal trip is displayed in Table \ref{Trip5P10Calone}. Due to the low values of $\gamma$ for person 5, the model allocates him a trip in which he is always by myself. Furthermore, person 1 and 2 have identical trips due to their similar interests and high $\gamma$ rating. This is also the case for persons 3 and 4.
+The optimal trip is displayed in Table \ref{Trip5P10Calone}. Due to the low values of $\gamma$ for person 5, the model allocates him a trip in which he is always by himself. Furthermore, persons 1 and 2 have identical trips due to their similar interests and high $\gamma$ rating. This is also the case for persons 3 and 4.
 
-\begin{table}[h]
+\begin{table}[h!]
 \centerline{\begin{tabular}[l]{>{\bfseries}c|c|c|c|c|c}
 \hline 
      \textbf{Day} & \textbf{Person 1} & \textbf{Person 2} & \textbf{Person 3} & \textbf{Person 4} & \textbf{Person 5} \TBstrut\\ \hline
@@ -907,13 +832,14 @@ The optimal trip is displayed in Table \ref{Trip5P10Calone}. Due to the low valu
 }
 \caption{7 day trip for 5 people \label{Trip5P10Calone}}
 \end{table}
-
-Suppose that no traveller is allowed to be alone at any point during their trip. In other words, if person $p$ is in city $i$ on day $d$ (ie. $x_{pid}=1$) then we require the ``together variable'' to be greater than or equal to two. The factor of two is due to the fact that the above constraints force $t_{ppid}$ to be equal to 1.
+ \newpage
+Now, suppose that no traveller is allowed to be alone at any point during their trip. In other words, if person $p$ is in city $i$ on day $d$ (ie. $x_{pid}=1$) then we require the ``together variable'' to be greater than or equal to two. 
+%The factor of two is due to the fact that the above constraints force $t_{pqid}$ to be equal to 1.
 \begin{equation*}
 \sum_{q \in \mathcal{P}} t_{pqid} \geq 2 \cdot x_{pid} \hspace{1cm} \forall p \in \mathcal{P}, i \in \mathcal{C}, d=1..D 
 \end{equation*}
 Running the model with this new constraint gives the trip shown in Table \ref{Trip5P10C}. Since person 5 is forced to be with someone at all times, his enjoyment is much lower in comparison to the enjoyment of his companions.
-\begin{table}[h]
+\begin{table}[h!]
 \centerline{\begin{tabular}[l]{>{\bfseries}c|c|c|c|c|c}
 \hline 
      \textbf{Day} & \textbf{Person 1} & \textbf{Person 2} & \textbf{Person 3} & \textbf{Person 4} & \textbf{Person 5} \TBstrut\\ \hline
@@ -931,7 +857,8 @@ Running the model with this new constraint gives the trip shown in Table \ref{Tr
 \caption{7 day trip for 5 people, no traveller is ever allowed to be alone \label{Trip5P10C}}
 \end{table}
 
-Maximising the total enjoyment is perhaps not the fairest way to measure enjoyment - there may be one traveller who is assigned a trip with a low enjoyment value compared to his fellows travellers.  To avoid this problem, we could choose to maximise the average enjoyment. Alternatively, we could maximise the minimum enjoyment:
+\newpage
+Maximising the total enjoyment is perhaps not the fairest way to measure enjoyment; there may be one traveller who is assigned a trip with a low enjoyment value compared to his fellow travellers. To avoid this problem, we could maximise the minimum enjoyment:
 \begin{equation*}
 \text{Max   } \min_{p \in \mathcal{P}} \Bigg\{\sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \sum_{c=1}^{8} \rho_{pc} \cdot \kappa_{ic} \cdot x_{pid} + \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \sum_{q \in \mathcal{P}} \gamma_{pq} \cdot t_{pqid}\Bigg\}
 \end{equation*}
@@ -940,10 +867,11 @@ This is now nonlinear, thus we linearise it with a new variable $\xi$.
 \text{Max  } \xi
 \end{equation*}
 \begin{equation*}
-\sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \sum_{c=1}^{8} \rho_{pc} \cdot \kappa_{ic} \cdot x_{pid} + \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \sum_{q \in \mathcal{P}} \gamma_{pq} \cdot t_{pqid} \leq \xi \hspace{1cm} \forall p \in \mathcal{P}
+\text{s.t~~~~~~~~~~~}
+\xi \leq \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \sum_{c=1}^{8} \rho_{pc} \cdot \kappa_{ic} \cdot x_{pid} + \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \sum_{q \in \mathcal{P}} \gamma_{pq} \cdot t_{pqid} \hspace{1cm} \forall p \in \mathcal{P}
 \end{equation*}
 
-In all cases, once the enjoyment has been maximised, we can set the enjoyment to be fixed and then minimise cost.
+In all cases, once the enjoyment has been maximised, we set the enjoyment to be fixed at the optimal value ant then minimise cost.
 
 
 
@@ -957,17 +885,21 @@ In all cases, once the enjoyment has been maximised, we can set the enjoyment to
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{quote} \textit{
-Write your conclusions here. Througout the whole document, do not forget to cite your sources \cite{example}.
-} \end{quote}
+We have developed a flexible model to solve the problem of planning an optimal trip to Europe. Our model allows simple modification through additional constraints to explore real-world scenarios, such as being in a city on a certain day of the trip or never visiting a certain city. The flexibility of the formulation allows extensions to replicate more complex situations by building on our base model.
+
+Heuristics and valid inequalities were developed to help reduce computation time in situations where the model was inefficient. Using the greedy heuristics, we were able to derive upper and lower bounds on the objective value of our program, which improved computational efficiency.
+
+When we implement this program on a website, the model will be adjusted in several ways. Firstly, the base utility will need to be derived using a more sophisticated method, or alternatively, we could incorporate the criteria ratings into our utility data. Moreover, our flight data is currently implemented as static values. Flight data is constantly changing due to factors such as fluctuating exchange rates and competition between airlines, so storage of static information is inappropriate for our problem. Hence, we will gather our flight data in real-time.
+
+In this project we consider air travel as the only mode of transport. However, we will extend the model to handle trains, private cars and naval transport as in some cases these would be preferable with regards to cost or speed.
+
+One notable recommendation we make is that changing the time scale from days to hours is ill-advised. However, once a traveller knows the days on which they travel between cities, a time scale of hours could be used to optimise the exact time of the day that they travel.
+
+Finally, our website will allow the user to input data to indicate their preferences towards cities or criteria. This will constrain our model further, allowing for reduced computation time.
+
+In summary, with a few minor tweaks, our model has potential to be built into a website where any traveller can freely find their dream European holiday.
 
 
-recommend: query a database for flight data as needed - flight data is constantly changing because of exchange rates, competition etc. so storage of static information is not desired here.
-
-base utility data gathering: netflix and amazon
-
-
-\pagebreak
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -977,14 +909,10 @@ base utility data gathering: netflix and amazon
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{quote} \textit{
-Acknowledge anyone (person, organisation etc.) who has contributed to your project.
-} \end{quote}
-
-We acknowledge our lecturer Alysson Costa for the assistance he provided at many stages of our project. Specifically, when we were posed with the possibility that our decaying utility function could lead to non-linear constraints, Alysson recommended we predefine the decayed utility values. Also, ...
+We would like to thank our lecturer Dr. Alysson Costa for the assistance he provided at many stages of our project. Specifically, when we were confronted with the issue that our decaying utility function could lead to non-linear constraints, Dr. Costa recommended we precompute the decayed utility values. His suggestion and hints to reduce computational time regarding floating point inequalities were extremely helpful.
 
 
-
+\pagebreak
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1068,33 +996,116 @@ We acknowledge our lecturer Alysson Costa for the assistance he provided at many
 	\end{minipage}
 \end{table}
 
-\begin{table}[h]
-	\caption{Base Utility for Fifteen Cities}
-	\centering
-	\vspace{1mm}
-	\begin{tabular}{c|c}
-		\hline
-		\rule{0pt}{2ex} City & Base Utility  \\
-		\hline
-		\rule{0pt}{2ex}Moscow & 71.017 \\
-		Paris & 92.66 \\
-		London & 100 \\
-		Madrid & 77.356 \\
-		Rome & 85.238 \\
-		Crete & 50.707 \\
-		Barcelona & 78.964 \\
-		Berlin & 87.116 \\
-		Budapest & 67.093 \\
-		Florence & 74.819 \\
-		Amsterdam & 73.17 \\
-		Prague & 77.126 \\
-		Istanbul & 77.067 \\
-		Vienna & 75.922 \\
-		Venice & 77.436 \\
-	\end{tabular}
+\pagebreak
+
+
+\begin{table}[ht!]
+	\begin{minipage}[b]{0.45\linewidth}
+		\caption{Low Daily costs of Fifteen Cities}
+		\centering
+		\vspace{1mm}
+		\begin{tabular}{c|c}
+			\hline
+			\rule{0pt}{2ex} City & Cost  \\
+			\hline
+			\rule{0pt}{2ex}Moscow & 36 \\
+			Paris & 81 \\
+			London & 110 \\
+			Madrid & 57 \\
+			Rome & 68 \\
+			Crete & 69 \\
+			Barcelona & 49 \\
+			Berlin & 50 \\
+			Budapest & 75 \\
+			Florence & 56 \\
+			Amsterdam & 68 \\
+			Prague & 39 \\
+			Istanbul & 32 \\
+			Vienna & 56 \\
+			Venice & 54 \\
+		\end{tabular}
+	\end{minipage}
+	\hspace{0.5cm}
+	\begin{minipage}[b]{0.45\linewidth}
+		\caption{Mid Daily costs of Fifteen Cities}
+		\centering
+		\vspace{1mm}
+		\begin{tabular}{c|c}
+			\hline
+			\rule{0pt}{2ex} City & Cost  \\
+			\hline
+			\rule{0pt}{2ex}Moscow & 92 \\
+			Paris & 223 \\
+			London & 298 \\
+			Madrid & 148 \\
+			Rome & 169 \\
+			Crete & 181 \\
+			Barcelona & 126 \\
+			Berlin & 130 \\
+			Budapest & 145 \\
+			Florence & 142 \\
+			Amsterdam & 165 \\
+			Prague & 100 \\
+			Istanbul & 85 \\
+			Vienna & 158 \\
+			Venice & 134 \\
+		\end{tabular}
+	\end{minipage}
 \end{table}
 
-
+\begin{table}[ht!]
+	\begin{minipage}[b]{0.45\linewidth}
+		\caption{High Daily costs of Fifteen Cities}
+		\centering
+		\vspace{1mm}
+		\begin{tabular}{c|c}
+			\hline
+			\rule{0pt}{2ex} City & Cost  \\
+			\hline
+			\rule{0pt}{2ex}Moscow & 233 \\
+			Paris & 657 \\
+			London & 845 \\
+			Madrid & 393 \\
+			Rome & 423 \\
+			Crete & 418 \\
+			Barcelona & 321 \\
+			Berlin & 340 \\
+			Budapest & 354 \\
+			Florence & 356 \\
+			Amsterdam & 432 \\
+			Prague & 251 \\
+			Istanbul & 244 \\
+			Vienna & 494 \\
+			Venice & 325 \\
+		\end{tabular}
+	\end{minipage}
+	\hspace{0.5cm}
+	\begin{minipage}[b]{0.45\linewidth}
+		\caption{Base Utility for Fifteen Cities}
+		\centering
+		\vspace{1mm}
+		\begin{tabular}{c|c}
+				\hline
+				\rule{0pt}{2ex} City & Base Utility  \\
+				\hline
+				\rule{0pt}{2ex}Moscow & 71.017 \\
+				Paris & 92.66 \\
+				London & 100 \\
+				Madrid & 77.356 \\
+				Rome & 85.238 \\
+				Crete & 50.707 \\
+				Barcelona & 78.964 \\
+				Berlin & 87.116 \\
+				Budapest & 67.093 \\
+				Florence & 74.819 \\
+				Amsterdam & 73.17 \\
+				Prague & 77.126 \\
+				Istanbul & 77.067 \\
+				Vienna & 75.922 \\
+				Venice & 77.436 \\
+			\end{tabular}
+	\end{minipage}
+\end{table}
 
 
 \pagebreak
@@ -1358,7 +1369,7 @@ Munich & 1016 & 1015 & 1031 & 1028 & 1016 & 1041 & 1036 \\
 \end{tabular}
 \end{table}
 
-
+\pagebreak
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1374,20 +1385,8 @@ Available online: \url{http://www.momondo.com.au/}
 %%%%%%%%%%%%%%
 \bibitem{budget}
 Budget Your Trip,
-\emph{Trvavel Cost Search}, accessed 13 May 2015.
+\emph{Travel Cost Search}, accessed 13 May 2015.
 Available online: \url{http://www.budgetyourtrip.com/}
-%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%
-\bibitem{budget}
-Budget Your Trip,
-\emph{Trvavel Cost Search}, accessed 13 May 2015.
-Available online: \url{http://www.budgetyourtrip.com/}
-%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%
-\bibitem{example}
-Foo, Bar, Smith (2002)
-\emph{Example Title}.
-Example Publisher. ISBN XXX-XXX
 %%%%%%%%%%%%%%
 %%%%%%%%%%%%%%
 \bibitem{tripadvisor}
@@ -1400,6 +1399,12 @@ Available online: \url{http://www/tripadvisor.com.au/}
 hostelworld.com,
 \emph{Travel Guides}, accessed 16 April 2015.
 Available online: \url{http://www/tripadvisor.com.au/}
+%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%
+\bibitem{euro}
+europeancitiesmarketing,
+\emph{ECM}, accessed 23 May 2015.
+Available online: \url{http://www.europeancitiesmarketing.com}
 %%%%%%%%%%%%%%
 %%%%%%%%%%%%%%
 \end{thebibliography}
