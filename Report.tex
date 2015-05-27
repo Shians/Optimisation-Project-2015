@@ -56,12 +56,16 @@ Keywords: personalised tourist guide, linear programming, transportation plannin
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{quote} \textit{
-Introduction to the business you have selected. Which activity of the business have you selected to
-improve on? Why?
-} \end{quote}
+Planning a trip to Europe is not a trivial task as there are many factors which must be considered. Comparing the cost of airfares, the cost of hotels, deciding on which places to visit and the order in which to visit them; just to list a few. Prospective travellers seek the help of travel agencies to assist them in finding their optimal trip. However, using travel agencies comes with a fee and many are associated with certain suppliers. Hence the results they provide their customers are biased and not necessarily the optimal solution.
 
-\lipsum[3]
+With this project we aimed to formulate and create a linear program which optimises a trip to Europe. What classifies the optimality of the trip will be defined by the traveller; whether it is minimal cost, maximal enjoyment or a combination of the two. This LP could be built into a website where travellers can input their requirements, such as maximum trip length, longest and shortest time spent in any one city and a budget constraint. The LP seeks only optimality and so would have no bias towards particular airlines or hotels; a feature which is certainly be appealing to any traveller. One who has already planned their trip could use the website to estimate costs or even find a cheaper or more enjoyable configuration.
+
+To model this program we require data on the daily cost of living for each city, the cost of airfares between all cities and the daily utility of staying at each city. This is delved into further in the next section. The first models we consider are greedy heuristics and from their output we motivate the use of a formal linear programming approach. Two mixed-integer linear programs are then proposed, one simply seeking the minimal cost and one seeking the minimal cost given that enjoyment must first be maximised.
+
+The model is extended in 4 ways to increase our its applicability in real-world scenarios. We consider travellers who have an affinity for particular acitvities, such as going to the beach or visiting museums, and use our program to maximise their enjoyment. The model is also extended to handle trips involving multiple people. One person may want to join/avoid a friend/enemy who has already planned their trip to Europe. A program formulation which can plan a trip involving many people at once is also proposed. This LP ensures that everyone is always with at least one other person at anytime and each person's enjoyment is maximised.
+
+Finally, we present our concluding remarks on the project and give recommendations to possible further work which could be done and alternate approaches to the problem.
+
 
 
 \pagebreak
@@ -113,18 +117,18 @@ High & 233 & 657 & 845 & 393 & 423 \\
 \end{tabular}
 \end{table}
 
-The last contribution to our model's objective value came from the flights from and to Melbourne at the begining and end of the trip. We assumed that the traveller bought a return ticket, and so this will force the first and last city that they visit to be the same. This is a reasonable assumption to make as the cost of purchasing a return ticket was generally less than that of purchasing two separate one-way tickets.  This flight data was again sourced from \url{momondo.com.au} \cite{momondo}.
+The last contribution to our model's objective value came from the flights from and to Melbourne at the begining and end of the trip. We assumed that the traveller bought two one-way tickets for these flights, as if we had instead allowed for the possibility of a return ticket then our model would have become more constrained. Specifically, the first and last days of the trip would have had to be equal.  This flight data was again sourced from \url{momondo.com.au} \cite{momondo}.
 
 \begin{table}[h]
-\caption{Return Flight Costs of Five Cities}
+\caption{Melbourne Flight Costs of Five Cities}
 \centering
 \vspace{1mm}
-\begin{tabular}{c|c|c|c|c}
+\begin{tabular}{c|c|c|c|c|c}
 \hline
-\rule{0pt}{2ex} Moscow & Paris & London & Madrid & Rome \\
+\rule{0pt}{2ex} City & Moscow & Paris & London & Madrid & Rome \\
 \hline
-\rule{0pt}{2ex} 2311 & 2155 & 1908 & 1870 & 2584 \\
-
+\rule{0pt}{2ex} To Melbourne & 1390 & 1090 & 1007 & 1175 & 1082 \\
+\rule{0pt}{2ex} From Melbourne & 803 & 844 & 875 & 1061 & 934 \\
 \end{tabular}
 \end{table}
 
@@ -235,9 +239,6 @@ Using a decay factor of 0.98 and the medium daily costs defined in Section DATA,
 \subsection{Mixed-Integer Linear Program}
 
 \subsubsection{Base model}
-
-% melbourne flight data
-
 \textbf{Variables} \\
 $x_{id}$: [binary] equal to 1 if the traveller is in city $i$ on day $d$. \\ 	% location variable
 $y_{i}$: [binary] equal to 1 if the traveller ever visits city $i$. \\		% city variable
@@ -247,12 +248,12 @@ $m_{ijd}$: [binary] equal to 1 if the traveller moves from city $i$ to city $j$ 
 $D$: the total number of days. \\
 $\mathcal{C}$: the set of cities available for visiting. \\
 $\mu_{ij}$: the cost to move from city $i$ to city $j$. \\
-$\delta_{i}$: the daily cost of city $i$. \\
+$\lambda_{i}$: the cost to move from melbourne to city $i$. \\
+$\nu_{i}$: the cost to move from city $i$ to melbourne. \\
 $\alpha$: the minimum number of days allowed in a city. \\
 $\omega$: the maximum number of days allowed in a city. \\
-
 \begin{equation*}
-\text{Min } \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{id} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} \mu_{ij} \cdot m_{ijd}\\
+\text{Min } \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{id} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} \mu_{ij} \cdot m_{ijd} + \sum_{i \in \mathcal{C}} \left( x_{i,1} \cdot \lambda_{i} + x_{i,D} \cdot \nu_{i} \right)\\
 \end{equation*}
 \begin{align}
 \text{s.t.~~~~~~~~} \sum_{d=1}^{D} x_{id} & \geq \alpha \cdot y_{i} & \forall i \in \mathcal{C}\\
@@ -268,13 +269,8 @@ x_{id}, y_{i}, m_{ijd} & \in \{0,1\} & \forall i, j \in \mathcal{C}, d = 1..D
 The base model is a simple minimisation of cost during a trip through europe. It's clear that the optimal solution would be to simply fly to the cheapest city and stay there for the duration of the planned trip. So we set some limits on how long we can stay in a particular city.
 
 \newpage
-
-\subsection{Decaying Enjoyment}
-Assuming that the enjoyment of staying in a city decays with the number of days stayed. Note that in its natural form this does not yield a problem that is linear in our main decision variable $x_{id}$. Let $u$ be some base level utility and $r$ be some decay factor now let $N_i=\sum_{j=1}^D x_{ij}$ be the total number of days we stay in city. To find out how much utility we would obtain for a given city we would need to compute the sum
-\begin{equation*}
-	\sum\limits_{j=1}^{N_{i}} u \cdot r^{j-1}, \quad i \in \mathcal{C}.
-\end{equation*}
-This is a basic geometric sum with closed form $u \cdot \frac{1-r^{N_i}}{1-r}$ which is clearly not linear in $x_{ij}$. We can however linearise this problem by precomputing the utility values as a matrix for each day in each city. This is only possible because we are working in discrete time steps. With this linearisation method in mind, we add the following to the model.
+\subsubsection{Decaying Enjoyment}
+Assuming that the enjoyment of staying in a city decays with the number of days stayed. We add the following to the model.
 
 \textbf{Variables}\\
 $s_{ij}$: [binary] equal to 1 if traveller stays in city i for j days.\\
@@ -286,7 +282,7 @@ Then we no longer need (2) since we hope that the traveller naturally leaves the
 
 Then the new model is 
 \begin{equation*}
-\text{Max } \sum_{i \in \mathcal{C}} \sum_{j=1}^{D} s_{ij} \cdot u_{ij}\\
+\text{Max } \sum_{i \in \mathcal{C}} \sum_{j=1}^{D} s_{ij} * u_{ij}\\
 \end{equation*}
 \begin{align}
 \text{s.t.~~~~~~~~}
@@ -316,6 +312,7 @@ We look at the new constraints introduced.\\
 Constraint &  Explanation \\
 \hline
 $\sum_{j=1}^{D} s_{ij} = y_{i}$ & This ensures that only one stay duration is valid for each city, also that the stay durations are zero if a city is not visited. \\
+c & d \\
 \hline
 $s_{ij} \cdot j \leq \sum_{d=1}^{D} x_{id}$ & When trying to maximise utility the program will try to set j to the highest value it can for each i because $u_{ij}$ is set up as the cumulative utility of staying in city $i$ for $j$ days. As a result this sets $s_{ij}$ 1 if we stay in city $i$ for $j$ days. \\
 \end{tabular}
@@ -325,7 +322,8 @@ $s_{ij} \cdot j \leq \sum_{d=1}^{D} x_{id}$ & When trying to maximise utility th
 % $\sum_{j=1}^{D} s_{ij} = y_{i}$ & This ensures that only one stay duration is valid for each city, also that the stay durations are zero if a city is not visited.
 % $s_{ij} \cdot j \leq \sum_{d=1}^{D} x_{id}$ & When trying to maximise utility the program will try to set j to the highest value it can for each i because $u_{ij}$ is set up as the cumulative utility of staying in city $i$ for $j$ days. As a result this sets $s_{ij}$ 1 if we stay in city $i$ for $j$ days.\\
 % \end{tabular}\\
-Now in practice, solving the model in Fico Xpress takes a substantial amount of time as the number of cities and days of the trip grows. So we impose some additional constraints, first we note that with unconstrained utility and costs, both the utility is non-decreasing with the number of days, then we can solve a shorter trip and use its results as lower bounds for utility in the longer trip. Also there exists a simple heuristic for finding the maximum utility if we ignore the minimum days of stay constraint, this heuristic solution can be used as an upper bound for the utility. We also note that for an optimal utility, the number of days in each city will not change in the optimal cost optimisation. Therefore we can use this as a constraint for improving the performance of the cost optimisation. Then we can add the constraint
+
+Now in practice, solving the model in Fico Xpress takes a substantial amount of time as the number of cities and days of the trip grows. So we impose some additional constraints, first we note that with unconstrained utility and costs, both the utility and costs are non-decreasing with the number of days, then we can solve a shorter trip and use its results as lower bounds for cost and utility in the longer trip. This improves the running time significantly for maximising utility, furthermore we note that for an optimal utility, the number of days in each city will not change in the optimal cost optimisation. Therefore we can use this as a constraint for improving the performance of the cost optimisation. Then we can add the constraint
 \begin{align*}
 	\sum\limits_{j=1}^D s_{ij} &= (\sum\limits_{j=1}^D s_{ij})_{optimal} & \forall i \in C.
 \end{align*}
@@ -348,21 +346,21 @@ $$	x_{13,d} = 0~~,~~ \forall d \in D	$$
 The base model always returned Istanbul as one of the cities visited, as it had the overall cheapest flights. So the traveller's dislike of Istanbul has increased the minimal cost of their trip from \$3672 to \$3860.
 
 \subsection{Varying Airfares}
-So far, we have assumed that the cost of flights was uniform across all days. This extension's aim is to ensure our model returns more realistic results by considering how the cost of airfares vary across the week. We use \url{momondo.com.au} again to source the airfare data \cite{momondo}. To reduce computation times we arbitrarily assume that the trip begins on a Sunday.
+So far, we have assumed that the cost of flights was uniform across all days. This extension's aim is to ensure our model returns more realistic results by considering how the cost of airfares vary across the week. We use \url{momondo.com.au} again to source the airfare data \cite{momondo}. For the sake of computational efficiency, we arbitrarily set the first day of the trip to Sunday.
 
 %Initially, we aimed to only differentiate the flight costs between weekdays and weekends, however after inspecting the data, the cost variation did not appear so binary. Instead, 
 To model the variation in airfares, the travel cost parameter $\mu_{ij}$ needs an additional dimension to store the day of the week. So we now redefine $\mu$ as follows,
 
-$\mu_{ijd}$: The cost to fly from city $i$ to city $j$ on weekday $d$, $\forall i,j \in \mathcal{C}$, $d=1...7$.
+$\mu_{ijd}$: The cost to fly from city $i$ to city $j$ on day $d$, $\forall i,j \in \mathcal{C}$, $d=1...7$.
 
 If the size of $\mathcal{C}$ is $n$, then we now have a 3-dimensional array of size $n\times n\times 7$. To define an array in the Mosel language, one must specify each element and its corresponding index tuple. There are many ways of shortcutting this process, however to define the elements of a 3-dimensional array the shorthand becomes rather inelegant. In the case of 15 cities, the parameter definition section became longer than the model definition itself.
 
-Seeking an alternate and more compact implementation, we decided to take the current flight data as the base price to travel between any two cities. Then construct a new parameter which stored how the flight cost was augmented for each day of the week. So now, for each of the cities, we have a size $n \times 7$ array which stores these augmentation values as percentages,
+Seeking an alternate and more compact implementation, we decided to take the current flight data, $\mu_{ij}$, as the base price to travel between any two cities. Then construct a new parameter which stores how the flight cost is augmented for each day of the week. So now, for each of the cities, we have a size $n \times 7$ array which stores these augmentation values as percentages,
 
 \textbf{Parameters} \\
-$ai_{jd}$: The percentage increase in airfares from city $i$ to city $j$ on day $d$, $\forall i,j \in \mathcal{C}$, $d=1...7$.\\
+$a_{ijd}$: The percentage increase in airfares from city $i$ to city $j$ on day $d$, $\forall i,j \in \mathcal{C}$, $d=1...7$.\\
 
-To demonstrate this we provide Moscow's augmentation array, $a1_{jd}$. An entry of zero indicates that there is no increase in price for the flight on that day. The full table can be found in the appendicies.\\
+To demonstrate this we provide Moscow's augmentation array, $a_{1jd}$. An entry of zero indicates that there is no increase in price for the flight on that day. The full table can be found in the appendicies.\\
 \begin{table}[h]
 	\caption{Airfare Augmentation Data for Moscow}
 	\centering
@@ -381,15 +379,16 @@ To demonstrate this we provide Moscow's augmentation array, $a1_{jd}$. An entry 
 
 Now adding this to the objective function gives
 \begin{equation*}
-\text{Min } \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{id} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} m_{ijd} \cdot (\mu_{ij(d \text{ mod }7)} + 0.01 \cdot \mu_{ij(d \text{ mod }7)} \cdot ai_{jd}) \\
+\text{Min } \sum_{d=1}^{D} \sum_{i \in \mathcal{C}} \delta_{i} \cdot x_{id} + \sum_{d=1}^{D-1} \sum_{i \in \mathcal{C}} \sum_{j \in \mathcal{C}} m_{ijd} \cdot (\mu_{ij} + 0.01 \cdot \mu_{ij} \cdot a_{ij(1+d \text{ mod }7)}) + \sum_{i \in \mathcal{C}} \left( x_{i,1} \cdot \lambda_{i} + x_{i,D} \cdot \nu_{i} \right)\\
 \end{equation*}
+The modulus function is used here in the subscript of the augmentation array. This is clearly so that on the eighth and later days of the trip we correctly access the corresponding element of the array.
 
-As an illustration, now consider a traveller planning a 12 day trip, who needs visit Florence and then travel to Vienna for the last 4 days of their trip. Adding the following constraints to the model,
+As an illustration, now consider a traveller planning a 13 day trip, who needs visit Florence and then travel to Moscow on the first Sunday of their trip. They also want to spend the last part of their trip in Crete. Adding the following constraints imposes the traveller's desires on the model,
 \begin{align}
-x_{10,8} &= 1 & \nonumber\\
-x_{14,d} &= 1 & \forall d=9...12, \nonumber
+m_{10,1,7} &= 1 \nonumber\\
+x_{6,13} &= 1. \nonumber
 \end{align}
-we receive the results from the base model and varying airfares extension as listed below.
+Below, we list the results from the base model and varying airfares extension.
 
 \begin{table}[ht]
 	\begin{minipage}[b]{0.45\linewidth}
@@ -399,10 +398,12 @@ we receive the results from the base model and varying airfares extension as lis
 		\begin{tabular}{| c || c |}
 			\hline
 			Number of Days & City \\ \hline \hline
-			x & X \\ \hline
-			x & X \\ \hline
-			x & X \\ \hline
-			4 & Vienna \\ \hline
+			4 & Istanbul \\ \hline
+			2 & Prague \\ \hline
+			2 & Florence \\ \hline
+			3 & Moscow \\ \hline
+			2 & Crete \\ \hline
+			Total Cost: & \$4253 \\ \hline
 		\end{tabular}
 		\label{varying_airfares_example_1}
 	\end{minipage}
@@ -414,16 +415,18 @@ we receive the results from the base model and varying airfares extension as lis
 		\begin{tabular}{| c || c |}
 			\hline
 			Number of Days & City \\ \hline \hline
-			x & X \\ \hline
-			x & X \\ \hline
-			x & X \\ \hline
-			4 & Vienna \\ \hline
+			4 & Istanbul \\ \hline
+			2 & Prague \\ \hline
+			2 & Florence \\ \hline
+			3 & Moscow \\ \hline
+			2 & Crete \\ \hline
+			Total Cost: & \$5715.16 \\ \hline
 		\end{tabular}
 		\label{varying_airfares_example_2}
 	\end{minipage}
 \end{table}
 
-The base model returns a total cost of \$XXX. Whereas with the variable airfare data added to the model, the minimum cost increases by \$ZZZ (\%XX.XX) to \$YYY. This cost increase comes from the \%35 increase in flights from Florence to Vienna on a Sunday and the \%XX increase in flights from Vienna to Melbourne on a Thursday.  So removing the assumption that flight costs are uniform across all days has given us a better estimate of the minimum cost.
+We can see that both models have returned the same trip, although their minimal costs vary greatly. The base model returns a total cost of \$4253. Whereas with the variable airfare data added to the model, the minimum cost increases by \$1462.16 (\%34.38) to \$5715.16. This cost increase primarily comes from the \%39 increase in flights from Florence to Moscow on a Sunday and a significant \%249.56 increase in flight cost from Crete to Melbourne on a Friday.  So removing the assumption that flight costs are uniform across all days has shown that our base model's cost estimate was about \$1500 lower than this extension's more accurate estimation.
 
 
 \subsection{Activity Preference}
@@ -451,9 +454,8 @@ The base model returns a total cost of \$XXX. Whereas with the variable airfare 
 Write your conclusions here. Througout the whole document, do not forget to cite your sources \cite{example}.
 } \end{quote}
 
-\lipsum[3]
 
-% recommend: query a database for flight data as needed - flight data is constantly changing because of exchange rates, competition etc. so storage of static information is not desired here.
+recommend: query a database for flight data as needed - flight data is constantly changing because of exchange rates, competition etc. so storage of static information is not desired here.
 
 
 \pagebreak
@@ -470,11 +472,10 @@ Write your conclusions here. Througout the whole document, do not forget to cite
 Acknowledge anyone (person, organisation etc.) who has contributed to your project.
 } \end{quote}
 
-alysson for being such a sexy beast
+We acknowledge our lecturer Alysson Costa for the assistance he provided at many stages of our project. Specifically, when we were posed with the possibility that our decaying utility function could lead to non-linear constraints, Alysson recommended we predefine the decayed utility values. Also, ...
 
 
 
-\pagebreak
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -483,10 +484,112 @@ alysson for being such a sexy beast
 \section{Appendix}
 \label{sec:appen}
 
-Daily expenses table goes here
+
+\begin{table}[ht]
+	\begin{minipage}[b]{0.45\linewidth}
+		\caption{Airfares from Melbourne for Twenty Five Cities}
+		\centering
+		\vspace{1mm}
+		\begin{tabular}{c|c}
+			\hline
+			\rule{0pt}{2ex} City & Airfare  \\
+			\hline
+			\rule{0pt}{2ex}Moscow & 1390 \\
+			Paris & 1090 \\
+			London & 1007 \\
+			Madrid & 1175 \\
+			Rome & 1082 \\
+			Crete & 1298 \\
+			Barcelona & 1101 \\
+			Berlin & 1376 \\
+			Budapest & 1399 \\
+			Florence & 1611 \\
+			Amsterdam & 1376 \\
+			Prague & 1236 \\
+			Istanbul & 1140 \\
+			Vienna & 1044 \\
+			Venice & 1362 \\
+			Goreme & 1448 \\
+			Lisbon & 1387 \\
+			Nice & 1376 \\
+			Reykjavik & 1842 \\
+			Edinburgh & 1226 \\
+			Dublin & 1253 \\
+			Krakow & 1546 \\
+			Copenhagen & 1356 \\
+			Athens & 1465 \\
+			Munich &1230 \\
+		\end{tabular}
+	\end{minipage}
+	\hspace{0.5cm}
+	\begin{minipage}[b]{0.45\linewidth}
+		\caption{Airfares to Melbourne for Twenty Five Cities}
+		\centering
+		\vspace{1mm}
+		\begin{tabular}{c|c}
+			\hline
+			\rule{0pt}{2ex} City & Airfare  \\
+			\hline
+			\rule{0pt}{2ex}Moscow & 803 \\
+			Paris & 844 \\
+			London & 875 \\
+			Madrid & 1061 \\
+			Rome & 934 \\
+			Crete & 922 \\
+			Barcelona & 983 \\
+			Berlin & 921 \\
+			Budapest & 1033 \\
+			Florence & 1186 \\
+			Amsterdam & 622 \\
+			Prague & 1058 \\
+			Istanbul & 748 \\
+			Vienna & 836 \\
+			Venice & 1076 \\
+			Goreme & 918 \\
+			Lisbon & 788 \\
+			Nice & 1119 \\
+			Reykjavik & 1260 \\
+			Edinburgh & 986 \\
+			Dublin & 880 \\
+			Krakow & 1140 \\
+			Copenhagen & 827 \\
+			Athens & 876 \\
+			Munich & 1016 \\
+		\end{tabular}
+	\end{minipage}
+\end{table}
+
+\begin{table}[h]
+	\caption{Base Utility for Fifteen Cities}
+	\centering
+	\vspace{1mm}
+	\begin{tabular}{c|c}
+		\hline
+		\rule{0pt}{2ex} City & Base Utility  \\
+		\hline
+		\rule{0pt}{2ex}Moscow & 71.017 \\
+		Paris & 92.66 \\
+		London & 100 \\
+		Madrid & 77.356 \\
+		Rome & 85.238 \\
+		Crete & 50.707 \\
+		Barcelona & 78.964 \\
+		Berlin & 87.116 \\
+		Budapest & 67.093 \\
+		Florence & 74.819 \\
+		Amsterdam & 73.17 \\
+		Prague & 77.126 \\
+		Istanbul & 77.067 \\
+		Vienna & 75.922 \\
+		Venice & 77.436 \\
+	\end{tabular}
+\end{table}
+
+
+
+Full city activity rating table goes here
 
 \pagebreak
- 
 \begin{landscape}
 \begin{table}[h]
 \caption{Airfares between Twenty Five Cities (Part I)}
@@ -599,7 +702,7 @@ Dublin & 60 & 186 & 155 \\
 Krakow & 110 & 176 & 220 \\
 Copenhagen & 0 & 128 & 218 \\
 Athens & 131 & 0 & 145 \\
-Mucich & 131 & 166 & 0 \\
+Munich & 131 & 166 & 0 \\
 \end{tabular}
 \end{table}
 \pagebreak
@@ -638,7 +741,7 @@ Dublin & 6 & 0 & 3 & 10 & 20 & 17 & 15 \\
 Krakow & 0 & 0 & 6 & 6 & 16 & 6 & 2 \\
 Copenhagen & 0 & 0 & 3 & 6 & 10 & 10 & 10 \\
 Athens & 2 & 0 & 3 & 6 & 13 & 15 & 3 \\
-Mucich & 1 & 0 & 5 & 11 & 15 & 18 & 7 \\
+Munich & 1 & 0 & 5 & 11 & 15 & 18 & 7 \\
 \end{tabular}
 \end{table}
 
@@ -675,14 +778,52 @@ Dublin & 5 & 1 & 0 & 2 & 2 & 5 & 11 \\
 Krakow & 26 & 9 & 3 & 0 & 0 & 5 & 11 \\
 Copenhagen & 10 & 0 & 1 & 4 & 7 & 15 & 22 \\
 Athens & 8 & 0 & 0 & 3 & 7 & 16 & 13 \\
-Mucich & 6 & 5 & 5 & 0 & 4 & 6 & 20 \\
+Munich & 6 & 5 & 5 & 0 & 4 & 6 & 20 \\
+
+\end{tabular}
+\end{table}
+
+\pagebreak
+Here we give the table detailing how the flight costs of returning to Melbourne from Europe vary over the week. As we have arbitrarily set the trip to beginning on a Sunday, we do not need to consider how the flight costs to Europe from Melbourne vary.
+
+\begin{table}[h]
+\caption{Varying Flight Costs to Melbourne}
+\centering
+\vspace{1mm}
+\begin{tabular}{c|c|c|c|c|c|c|c}
+\hline
+\rule{0pt}{2ex} City & Sunday & Monday & Tuesday & Wednesday & Thursday & Friday & Saturday \\
+\hline
+\rule{0pt}{2ex}Moscow & 803 & 734 & 742 & 734 & 795 & 744 & 734 \\
+Paris & 844 & 802 & 942 & 844 & 1057 & 1080 & 971 \\
+London & 875 & 699 & 800 & 793 & 1044 & 1113 & 1101 \\
+Madrid & 1061 & 880 & 1011 & 1083 & 1082 & 1082 & 1048 \\
+Rome & 934 & 803 & 845 & 895 & 915 & 983 & 943 \\
+Crete & 922 & 869 & 882 & 956 & 1017 & 2301 & 884 \\
+Barcelona & 983 & 797 & 1059 & 978 & 1023 & 1082 & 1050 \\
+Berlin & 921 & 853 & 804 & 905 & 905 & 918 & 934 \\
+Budapest & 1033 & 1000 & 903 & 945 & 1013 & 945 & 1008 \\
+Florence & 1186 & 1144 & 1026 & 1064 & 1066 & 1142 & 1086 \\
+Amsterdam & 622 & 1003 & 612 & 819 & 956 & 956 & 1129 \\
+Prague & 1058 & 891 & 990 & 1031 & 1039 & 956 & 1090 \\
+Istanbul & 748 & 581 & 735 & 590 & 682 & 682 & 590 \\
+Vienna & 836 & 895 & 809 & 1137 & 1136 & 1087 & 1249 \\
+Venice & 1076 & 1036 & 887 & 937 & 1076 & 1074 & 1078 \\
+Goreme & 918 & 763 & 1082 & 750 & 1056 & 1110 & 1079 \\
+Lisbon & 788 & 939 & 783 & 941 & 934 & 960 & 960 \\
+Nice & 1119 & 785 & 927 & 923 & 1015 & 1003 & 927 \\
+Reykjavik & 1260 & 1002 & 1168 & 1241 & 1252 & 1114 & 1098 \\
+Edinburgh & 986 & 780 & 885 & 874 & 986 & 1063 & 1051 \\
+Dublin & 880 & 872 & 872 & 872 & 846 & 911 & 892 \\
+Krakow & 1140 & 970 & 1126 & 1128 & 1140 & 1148 & 1152 \\
+Copenhagen & 827 & 823 & 726 & 896 & 911 & 797 & 1010 \\
+Athens & 876 & 857 & 830 & 870 & 954 & 902 & 764 \\
+Munich & 1016 & 1015 & 1031 & 1028 & 1016 & 1041 & 1036 \\
 
 \end{tabular}
 \end{table}
 
 
-
-\pagebreak
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
