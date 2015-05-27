@@ -270,7 +270,11 @@ The base model is a simple minimisation of cost during a trip through europe. It
 
 \newpage
 \subsubsection{Decaying Enjoyment}
-Assuming that the enjoyment of staying in a city decays with the number of days stayed. We add the following to the model.
+Assuming that the enjoyment of staying in a city decays with the number of days stayed. Note that in its natural form this does not yield a problem that is linear in our main decision variable $x_{id}$. Let $u$ be some base level utility and $r$ be some decay factor now let $N_i=\sum_{j=1}^D x_{ij}$ be the total number of days we stay in city. To find out how much utility we would obtain for a given city we would need to compute the sum
+\begin{equation*}
+	\sum\limits_{j=1}^{N_{i}} u \cdot r^{j-1}, \quad i \in \mathcal{C}.
+\end{equation*}
+This is a basic geometric sum with closed form $u \cdot \frac{1-r^{N_i}}{1-r}$ which is clearly not linear in $x_{ij}$. We can however linearise this problem by precomputing the utility values as a matrix for each day in each city. This is only possible because we are working in discrete time steps. With this linearisation method in mind, we add the following to the model.
 
 \textbf{Variables}\\
 $s_{ij}$: [binary] equal to 1 if traveller stays in city i for j days.\\
@@ -282,7 +286,7 @@ Then we no longer need (2) since we hope that the traveller naturally leaves the
 
 Then the new model is 
 \begin{equation*}
-\text{Max } \sum_{i \in \mathcal{C}} \sum_{j=1}^{D} s_{ij} * u_{ij}\\
+\text{Max } \sum_{i \in \mathcal{C}} \sum_{j=1}^{D} s_{ij} \cdot u_{ij}\\
 \end{equation*}
 \begin{align}
 \text{s.t.~~~~~~~~}
@@ -323,7 +327,7 @@ $s_{ij} \cdot j \leq \sum_{d=1}^{D} x_{id}$ & When trying to maximise utility th
 % $s_{ij} \cdot j \leq \sum_{d=1}^{D} x_{id}$ & When trying to maximise utility the program will try to set j to the highest value it can for each i because $u_{ij}$ is set up as the cumulative utility of staying in city $i$ for $j$ days. As a result this sets $s_{ij}$ 1 if we stay in city $i$ for $j$ days.\\
 % \end{tabular}\\
 
-Now in practice, solving the model in Fico Xpress takes a substantial amount of time as the number of cities and days of the trip grows. So we impose some additional constraints, first we note that with unconstrained utility and costs, both the utility and costs are non-decreasing with the number of days, then we can solve a shorter trip and use its results as lower bounds for cost and utility in the longer trip. This improves the running time significantly for maximising utility, furthermore we note that for an optimal utility, the number of days in each city will not change in the optimal cost optimisation. Therefore we can use this as a constraint for improving the performance of the cost optimisation. Then we can add the constraint
+Now in practice, solving the model in Fico Xpress takes a substantial amount of time as the number of cities and days of the trip grows. So we impose some additional constraints, first we note that with unconstrained utility and costs, both the utility is non-decreasing with the number of days, then we can solve a shorter trip and use its results as lower bounds for utility in the longer trip. Also there exists a simple heuristic for finding the maximum utility if we ignore the minimum days of stay constraint, this heuristic solution can be used as an upper bound for the utility. We also note that for an optimal utility, the number of days in each city will not change in the optimal cost optimisation. Therefore we can use this as a constraint for improving the performance of the cost optimisation. Then we can add the constraint
 \begin{align*}
 	\sum\limits_{j=1}^D s_{ij} &= (\sum\limits_{j=1}^D s_{ij})_{optimal} & \forall i \in C.
 \end{align*}
